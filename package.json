@@ -1,0 +1,34 @@
+{
+   "name":"powwow",
+   "version":"0.1.0",
+   "description":"A message bus implemented in JavaScript that enables widgets in a Web page to publish and listen for messages.",
+   "keywords":[
+      "messagebus",
+      "pubsub",
+      "hub",
+      "widget",
+      "gadget",
+      "mashup",
+      "dashboard"
+   ],
+   "repository":{
+      "type":"git",
+      "url":"https://github.com/jbadeau/powwow"
+   },
+   "licenses":[
+      {
+         "type":"MIT",
+         "url":"http://www.opensource.org/licenses/mit-license.php"
+      }
+   ],
+   "maintainers":[
+      {
+         "name":"Jose Badeau",
+         "web":"http://josebadeau.com"
+      }
+   ],
+   "main":"./powwow",
+   "directories":{
+      "test":"test"
+   }
+}
