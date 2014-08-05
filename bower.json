@@ -27,9 +27,19 @@
          " homepage":"http://jose.badeau.com"
       }
    ],
+   "dependencies": {
+      "polymer": "0.3.3",
+      "platform": "0.3.3",
+      "when": "3.4.3",
+      "msgs": "0.4.0",
+      "rest": "1.1.1"
+   },
    "ignore":[
       "**/.*",
       "build",
+      "doc",
+      "node_modules",
+      "bower_components",
       "test",
       "*.md",
       "Gruntfile.js",

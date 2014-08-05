@@ -4,6 +4,10 @@ docs.tar
 # Ant
 build
 
+# Node
+node_modules
+bower_components
+
 # Maven
 target/
 bin

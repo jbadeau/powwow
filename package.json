@@ -27,7 +27,7 @@
          "web":"http://josebadeau.com"
       }
    ],
-   "main":"./powwow",
+   "main":"./src/powwow",
    "directories":{
       "test":"test"
    }
