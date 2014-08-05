@@ -1,0 +1,8 @@
+<messagebundle>
+    <msg name="desc">La description.</msg>
+    <msg name="cat">chat</msg>
+    <msg name="dog">chien</msg>
+    <msg name="horse">cheval</msg>
+    <msg name="goat">chèvre</msg>
+    <msg name="french_riviera">Côte d'Azur</msg>
+</messagebundle>

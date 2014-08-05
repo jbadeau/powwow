@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+        Copyright 2006-2008 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+<widget name="YahooColorPicker" id="http://openajax.org/samples/widgets/yahoocolorpicker"
+        xmlns="http://openajax.org/metadata" spec="1.0" sandbox="true" width="340" height="200">
+
+  <requires>
+		<library name="yui" version="2.6.0" src="http://yui.yahooapis.com/2.6.0/build/">
+            <require type="javascript" src="utilities/utilities.js"/>    
+            <require type="javascript" src="slider/slider.js"/>
+            <require type="javascript" src="colorpicker/colorpicker.js"/>
+            <require type="css" src="fonts/fonts-min.css"/> 
+            <require type="css" src="colorpicker/assets/skins/sam/colorpicker.css"/> 
+		</library>
+  </requires>    
+  
+    <content>
+      <![CDATA[
+          <style type="text/css">
+            #container { position: relative; padding: 6px; background-color: #eeeeee; width: 420px; height:220px; }
+          </style>
+          <div class="yui-skin-sam" style='width:100%;height:100%;' id="__WID__container"></div> 
+      ]]>      
+    </content>
+
+    <javascript>
+        (function() {
+            var Event = YAHOO.util.Event,
+                picker;
+        
+//            Event.onDOMReady(function() {
+    			YAHOO.log("Creating Color Picker.", "info", "example");
+                picker = new YAHOO.widget.ColorPicker("__WID__container", {
+                        showhsvcontrols: true,
+                        showhexcontrols: true,
+    					images: {
+    						PICKER_THUMB: "http://yui.yahooapis.com/2.6.0/build/colorpicker/assets/picker_thumb.png",
+    						HUE_THUMB: "http://yui.yahooapis.com/2.6.0/build/colorpicker/assets/hue_thumb.png"
+        				}
+                    });
+    			YAHOO.log("Finished creating Color Picker.", "info", "example");
+    			
+    			//a listener for logging RGB color changes;
+    			//this will only be visible if logger is enabled:
+    			var onRgbChange = function(o) {
+    				/*o is an object
+    					{ newValue: (array of R, G, B values),
+    					  prevValue: (array of R, G, B values),
+    					  type: "rgbChange"
+    					 }
+    				*/
+    				YAHOO.log("The new color value is " + o.newValue, "info", "example");
+    			}
+    			
+    			//subscribe to the rgbChange event;
+    			picker.on("rgbChange", onRgbChange);
+    			
+    			//use setValue to reset the value to white:
+    			Event.on("reset", "click", function(e) {
+    				picker.setValue([255, 255, 255], false); //false here means that rgbChange
+    													     //wil fire; true would silence it
+    			});
+    			
+    			//use the "get" method to get the current value
+    			//of one of the Color Picker's properties; in 
+    			//this case, we'll get the hex value and write it
+    			//to the log:
+    			Event.on("gethex", "click", function(e) {
+    				YAHOO.log("Current hex value: " + picker.get("hex"), "info", "example"); 
+    			});
+//            });
+        })();
+    </javascript>
+
+</widget>

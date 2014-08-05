@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+      <div id="importSearch" dojoType="dijit.form.DropDownButton" showLabel="false"
+        iconClass="nomadToolbarIcon nomadIconImport">
+       <span>Import Search Terms</span>
+       <div id="termsMenu" dojoType="dijit.Menu">
+         <div id="mystuff" dojoType="dijit.MenuItem" label="My Stuff"
+              onclick="retrieveMyStuff"></div>
+         <div id="mostrecent" dojoType="dijit.MenuItem" label="Most Recent"
+              onclick="retrieveMostRecent"></div>
+         <div id="highestrated" dojoType="dijit.MenuItem" label="Highest Rated"
+              onclick="retrieveHighestRated"></div>
+         <div id="oftenbookmarked" dojoType="dijit.MenuItem" label="Most Often Bookmarked"
+              onclick="retrieveOftenBookmarked"></div>
+         <div id="mystuff" dojoType="dijit.MenuItem" label="Mashup Widgets"
+              onclick="retrieveMyStuff"></div>
+       </div></div>
+-->
+<widget name="Event Logger" id="http://openajax.org/samples/widgets/EventLogger"
+		spec="0.1b" width="600" height="101"
+		xmlns="http://openajax.org/metadata">
+    <description>Privileged widget that logs property-related events.</description>
+
+    <requires>
+      <require type="library" name="dojo" version="1.3" copy="false"
+      		src="http://ajax.googleapis.com/ajax/libs/dojo/1.3"/>
+      <require type="javascript" library="dojo" src="dojo/dojo.js"/>
+      <require type="css" library="dojo" src="dojo/resources/dojo.css"/>
+      <require type="css" library="dojo" src="dijit/themes/tundra/tundra.css"/>
+    </requires>
+
+    <content type='html'>
+    <![CDATA[
+        <textarea id="__WID__messages" readonly="readonly" style="width:600px;height:100px;"></textarea>
+    ]]>
+    </content>
+    
+    <javascript>
+    <![CDATA[
+    	var mm = (typeof mashupMaker !== 'undefined') ? mashupMaker : window.parent.mashupMaker;
+        var textarea = document.getElementById( "__WID__messages" );
+        
+        function isMainWidget( id ) {
+            if ( id.slice(0, 6) == "__gID_" ) {
+                return true;
+            }
+            return false;
+        };
+        
+        function cleanID( id ) {
+            if ( isMainWidget( id ) ) {
+                return id.slice( 2 );
+            }
+            return id;
+        };
+        
+        function startsWith( str1, str2 ) {
+            return str1.substr( 0, str2.length ) == str2;
+        };
+        
+        mm.addPubSubManagerCallback( 'publish', function( topic, message, pcont, scont ) {
+            var pid = pcont ? pcont.getClientID() : "manager";
+            var sid = scont ? scont.getClientID() : "manager";
+            if ( ! isMainWidget( pid ) || ! isMainWidget( sid ) ) {
+                return;
+            }
+            textarea.value += "PUB: topic <" + topic + "> data <" + message +
+                    "> from <" + cleanID( pid ) + "> to <" + cleanID( sid )
+                    + ">.\n";
+            textarea.scrollTop = textarea.scrollHeight;
+        });
+        
+        mm.addPubSubManagerCallback( 'subscribe', function( topic, container ) {
+            var id = container ? container.getClientID() : "manager";
+            if ( ! isMainWidget( id ) ) {
+                return;
+            }
+            
+            id = cleanID( id );
+            
+            // ignore internal event topics, such as "openajax.widget.<ID>._propValueChange"
+            if ( startsWith( topic, "openajax.widget." + id + "._" ) ) {
+                return;
+            }
+            
+            textarea.value += "SUB: topic <" + topic + "> from <" + id + ">.\n";
+            textarea.scrollTop = textarea.scrollHeight;
+        })
+    ]]>
+    </javascript>
+</widget>

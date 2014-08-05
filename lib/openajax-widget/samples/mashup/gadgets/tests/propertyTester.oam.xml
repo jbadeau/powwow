@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+        Copyright 2006-2008 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+<widget name="PropertyTester" id="http://openajax.org/samples/widgets/PropertyTester"
+		spec="0.1b" version='0.8' width="300" height="125" jsClass="PropertyTester"
+		xmlns="http://openajax.org/metadata">
+    <description>This is a test widget that tests the UI representation of various parts of the OAA spec</description>
+    
+    <require type="javascript">
+        PropertyTester = function() {};
+        PropertyTester.prototype.onLoad = function(){
+          document.getElementById("__WID__date").value = this.OpenAjax.getPropertyValue( "subscribedDate" );
+        };
+  
+        PropertyTester.prototype.handleClick = function(){
+//          alert("click!");
+        };
+
+        PropertyTester.prototype.handleChange = function(){
+          // publish any changes to the input value by changing the property
+          // value above that has publish="true"
+          this.OpenAjax.setPropertyValue( "publishedDate", document.getElementById("__WID__date").value );
+        };
+  
+        PropertyTester.prototype.onChangeSubscribedDate = function( event ){
+          document.getElementById("__WID__date").value = event.newValue;
+        };
+    </require>
+
+    <properties>
+      <property name="subscribedDate" datatype="String" defaultValue="" readonly="false" sharedAs="date">
+        <description>last date published by another gadget</description>
+      </property>
+      <property name="should_not_see_this_publishedDate" datatype="String" defaultValue="" readonly="false" hidden="false" sharedAs="datestring">
+        <title>publishedDate</title>
+        <description>when this value is changed, this date will be published to other gadgets</description>
+      </property>
+      <property name="comboDateBoolean" datatype="Number|Date|Boolean" defaultValue="" readonly="false" hidden="false" sharedAs="string">
+        <description>This field takes a number, a date or a boolean</description>
+      </property>
+      <property name="booleanProperty" datatype="Boolean" defaultValue="" readonly="false" hidden="false" sharedAs="boolean">
+        <description>This field takes a boolean</description>
+      </property>
+      <property name="capitalizationProperty" datatype="Boolean" defaultValue="" readonly="false" hidden="false" sharedAs="datestring">
+        <description>You should see a string field here, not a boolean field</description>
+      </property>
+      <property name="dateProperty" datatype="Date" defaultValue="2008/12/12" readonly="false" hidden="false" sharedAs="date">
+        <description>You should see a string field here, not a boolean field</description>
+      </property>
+      <property name="integerProperty" datatype="Number" defaultValue="27" isInteger="true" readonly="false" hidden="false" sharedAs="integer">
+        <description>This field takes an integer</description>
+      </property>
+      <property name="integerPropertyReadonly_shouldNotSeeThis" datatype="Number" defaultValue="27" isInteger="true" readonly="true" hidden="false" sharedAs="integer">
+        <title><b><i>integer property (readonly)</i></b></title>
+        <description>This field should be readonly</description>
+      </property>
+      <property name="numberProperty" datatype="Number" defaultValue="-27.03" readonly="false" hidden="false" sharedAs="number">
+        <description>This field takes a date or a boolean</description>
+      </property>
+      <property name="nullProperty" datatype="null" defaultValue=""/>
+      <property name="objectProperty" datatype="Object" defaultValue=""/>
+      <property name="should_not_see_this_hiddenDate" datatype="String" defaultValue="" readonly="false" hidden="true" sharedAs="datestring">
+        <description>when this value is changed, this date will be published to other gadgets</description>
+      </property>
+      <property name="foo" datatype="String" defaultValue="foo's property"/>
+    </properties>
+
+    <content>
+    <![CDATA[
+      <label id="__WID__date_label" for="__GID_date" style="border: 1px solid red;">date last broadcast: </label>
+      <input id="__WID__date" name="__GID_date" onclick="OpenAjax.widget.byId('__WID__').handleClick()" onChange="OpenAjax.widget.byId('__WID__').handleChange();"></input>
+      
+      <div>Foo property value: @@foo@@</div>
+      <div>Foo property value after escape quotes: @@escapequotes(foo)@@</div>
+      <div>Foo property value after entity encode: @@entityencode(foo)@@</div>
+  
+    ]]>
+    </content>
+</widget>

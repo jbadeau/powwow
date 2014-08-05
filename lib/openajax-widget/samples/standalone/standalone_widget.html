@@ -1,0 +1,67 @@
+<!--
+        Copyright 2009 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+
+<!--
+    standalone_widget
+    
+    Loads a single widget into the page.  The widget file is specified using
+    the "specURL" URL query parameter.
+    
+    This file must reside alongside the Hub and Loader files.
+-->
+
+<HTML>
+	<HEAD>
+		<TITLE>widget</TITLE>
+
+		<SCRIPT SRC="OpenAjaxManagedHub-all.js"></SCRIPT>
+		<SCRIPT SRC="loader.js"></SCRIPT>
+
+		<SCRIPT>
+		    window.onload = function() {
+                var result = new RegExp( "[\\?&]specURL=([^&#]*)" ).exec( window.location.search );
+                if ( result ) {
+                    var specURL = decodeURIComponent( result[1].replace( /\+/g, "%20" ) );
+                    
+                    var loader = new OpenAjax.widget.Loader({
+                        ManagedHub: {
+                            onPublish: function( topic, data, pcont, scont ) {
+//                                var pid = pcont ? pcont.getClientID() : "app";
+//                                var sid = scont ? scont.getClientID() : "app";
+//                                console.log( ">> onPublish: from=" + pid + " to=" + sid + " t=" + topic + " d=" + JSON.stringify(data) );
+                                return true;
+                            },
+                            onSubscribe: function( topic, container ) {
+//                                var id = container ? container.getClientID() : "app";
+//                                console.log( "++ onSubscribe: w=" + id + "  t=" + topic );
+                                return true;
+                            }
+//                            log: function( msg ) { console.log( msg ); }
+                        }
+                    });
+                	loader.create({
+                	    spec: specURL,
+                	    target: "_wrapper"
+                	});
+                }
+		    }
+		</SCRIPT>
+        
+	</HEAD>
+	<BODY>
+		<DIV ID="_wrapper"></DIV>
+	</BODY>
+</HTML>

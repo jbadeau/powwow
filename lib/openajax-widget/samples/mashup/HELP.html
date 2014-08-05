@@ -1,0 +1,119 @@
+<html>
+<!--
+
+        Copyright 2006-2009 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+<title>Sample Mashup Application Tutorial 1: Building Your First Mashup</title>
+<head>
+<style type="text/css">
+h1 { text-align:center; }
+</style>
+</head>
+<body>
+<p style='text-align:center'><img style="height:5em" src="images/OpenAjaxAllianceBanner.jpg"/></p>
+<h1>Sample Mashup Application Tutorial 1:<br />Building Your First Mashup</h1>
+
+<ol>
+	<li><p>Open the <a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>.
+		You should see a window with the following toolbar at the top:</p>
+		<p><img src="images/readme_toolbar.png"/></p>
+	</li>
+	<li>If there are widgets on the canvas already, clear the canvas.
+		You can clear the canvas by going to 
+		the File menu (with the diskette icon: <img src="images/readme_file.png"/>) and selecting 'New'. (Note that
+		in the current release, the 'New' command
+		will clear the canvas without prompting "are you sure", so you may want
+		to save your current mashup before selecting 'New'.)</li>
+	<li><p>Click on the widget icon on the left side of the toolbar 
+		(with the magnifying glass icon: <img src="images/readme_widgets.png"/>)
+		to display a popup widget palette along the left side of the browser window. The toolbar will look something like this:</p>
+		<p><img src="images/readme_widget_palette.png"/></p>
+		<p>(Note: If no widgets appear, then you might need
+		to clear the widget search box that is just to the right of the magnifying glass icon.
+		Make sure the 'Local' repository is selected at the top of the widget catalog list.
+		Finally, click on 'Refresh Search Results'.)</p>
+	</li>
+	<li><p>Click on the 'Dojo Calendar' widget. The popup widget palette will disappear
+		and a calendar widget will appear on your canvas with a title bar:</p>
+		<p><img src="images/readme_calendar.png"/></p>
+		<p>The title bar provides options for customizing the widget:</p>
+		<ul>
+		<li>You can move the widget around on the canvas by dragging its title bar. </li>
+		<li>You can click on the <img src="images/readme_prop_editor_icon.png"/> icon at the top-left corner of the title bar 
+		to bring up the property editor (see below).
+		<li>You can remove the widget from the canvas by clicking on the <img src="images/readme_close_icon.png"/> icon 
+		at the top-right of the widget's title bar.</li>
+		</ul>
+		<p>
+		If you want to control where the widget is placed, with the widget palette open,
+		you can click on the <img src="images/readme_place_widget.png"/> icon to the left of the widget name,
+		and then subsequently click on the canvas to indicate the location where the widget should be placed.
+		You can preview the widget before placing on the canvas by clicking on the <img src="images/readme_preview_widget.png"/> icon.
+		This icon appears next to the widget name in the widget palette when the widget is highlighted.</p>
+	</li>
+	<li>Drag the calendar widget's title bar to move it to a different location on the canvas.
+		(Note: On some versions of IE, the calendar widget may go gray due to a bug that we hope to fix soon.
+		This tutorial should still work in IE if you don't move the calendar widget and just
+		leave it in its original position.)</li>
+	<li>Show the list of sample widgets again (by clicking on the magnifying glass tool) and then click on 
+		the DateListener widget. A DateListener widget should appear on your canvas. Drag its
+		title bar and move it to a different location.</li>
+	<li>Now click somewhere on the grid in the calendar widget. You'll see that the date you selected
+		will show up in the DateListener widget. This is because the two widgets are wired together
+		using the 'date' topic. Whenever you click on a date on the calendar widget,
+		it broadcasts a 'date' message. The DateListener subscribes to the 'date' event and then
+		updates itself to show the most recent 'date' message that it received.</li>
+	<li>Now add a second DateListener widget (i.e., once again bring up the list of widgets
+		by pressing on the magnifying glass tool and click on 'DateListener' again).
+		Click on a date within the calendar widget. You'll notice that both 'DateListener' widgets
+		receive the 'date' message. The calendar widget broadcasts a 'date' message to all
+		potential subscribers.</li>
+	<li>Now we are going to customize the wiring. By default, whenever a widget broadcasts
+		a 'date' message, that message will be sent to any widget that subscribes to
+		the 'date' message. Let's suppose that you want to link the Calendar widget
+		to only one of the two DateListener widgets. The user interface within the
+		Sample Mashup Application for controlling message flow is in a widget's Property Editor
+		dialog, which can be launched by clicking on the small icon at the top left
+		of a widget's frame. Click on the top left icon for the calendar widget
+		<img src="images/readme_prop_editor_icon.png"/> to make
+		the Property Editor appear.<br />
+		<img src="images/readme_calendar_prop_editor.png"/><br />
+		On the right side of the property editor
+		is a icon with two right-pointing arrows. This icon controls which widget(s)
+		will receive the 'date' message published by this Calendar widget. Click on this icon.
+		You will see that the two DateListener widgets are highlighted in purple.
+		Move the mouse over one of the DateListener widgets and bring up the context menu
+		(right click on Windows). A menu will appear that offers options about whether
+		the given DateListener widget should listen to all 'date' events, no 'date' events,
+		or bind to a particular widget. Select the option that says that it should listen
+		to no 'date' events. Then close the open dialog(s).
+		Now, when you click on a date in the Calendar widget, only one of the two
+		DateListener widgets will receive the 'date' message.</li>
+	<li>Now add a second Calendar widget and bind one of the Calendar widgets
+		to one of the DateListener widgets, and then bind the remaining
+		Calendar widget to the other DateListener widget. You can accomplish
+		this either by linking a particular publisher to a particular subscriber,
+		or a particular subscriber to a particular publisher. Start off
+		by bringing up the Property Editor for one of the widgets and clicking
+		on the side icon with two arrows pointing either left or right.
+		(For Calendar, which is a publisher, the arrows point right.
+		For DateListener, which is a subscriber, the arrows point left.)
+		You will find options that allow you to "bind to one widget".
+		Note that the user interface is somewhat different if you
+		initiate one-to-one binding starting with the publisher than if
+		you initiative one-to-one binding from a subscriber.</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/*******************************************************************************
+ * validator_oam.xml
+ *
+ * A widget that validates OpenAjax Metadata files for correctness.
+ * This widget allows the user to select an XML file or a ZIP file from
+ * his local file system, (temporarily) upload it to the OpenAjax web site, 
+ * and then validates all of the uploaded OpenAjax Metadata files against
+ * the language schema.
+ *
+ * This widget was created as part of OpenAjax Alliance's 2008 InteropFest.
+ *
+ * Copyright 2006-2008 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+ * use this file except in compliance with the License. You may obtain a copy 
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless 
+ * required by applicable law or agreed to in writing, software distributed 
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+ * specific language governing permissions and limitations under the License.
+ *
+ ******************************************************************************/
+ -->
+
+<widget name="Validator" id="http://openajax.org/samples/widgets/validator"
+        spec="1.0" width="600" height="700" jsClass="Validator"
+		xmlns="http://openajax.org/metadata" >
+    
+    <require type="javascript">
+    <![CDATA[
+        var Validator = function()
+        {
+            var widgetfoldername = "validator";
+            
+            this.onLoad = function() {
+            	document.getElementById('upload_form').action = this.OpenAjax.rewriteURI( "upload_and_validate.php" );
+            	document.getElementById('upload_target').src = this.OpenAjax.rewriteURI( "empty.html" );
+            	document.getElementById('local_validation').style.display = 'block';
+            	document.getElementById('remote_validation').style.display = 'none';
+            }
+            
+            /* Toggle visibility based on whether user wants to validate a local file or a remote file */
+            this.local_remote_changed = function() {
+            	var elem = document.getElementById('local_or_remote_select');
+            	var value = elem.value;
+            	if (value == 'remote') {
+            		document.getElementById('local_validation').style.display = 'none';
+            		document.getElementById('remote_validation').style.display = 'block';
+            	} else {
+            		document.getElementById('local_validation').style.display = 'block';
+            		document.getElementById('remote_validation').style.display = 'none';
+            	}
+            }
+            
+            this.startUpload = function(){
+            	var ext = document.getElementById("myfile").value;
+            
+            	/* Only uploads files that have the correct extension */
+            	ext = ext.substring(ext.length-3,ext.length);
+            	ext = ext.toLowerCase();
+            	if(ext != 'xml' && ext != 'zip') {
+            		alert('You selected a .'+ext+
+            			  ' file. You can only upload .xml or .zip files.');
+            		return false; 
+            	} else {
+            		return true;
+            	}
+            }
+            
+            function stopUpload(success){
+            /*
+                  var result = '';
+                  if (success == 1){
+                     result = '<span class="msg">The file was uploaded successfully!<\/span><br/><br/>';
+                  }
+                  else {
+                     result = '<span class="emsg">There was an error during file upload!<\/span><br/><br/>';
+                  }
+                  //document.getElementById('upload_process').style.visibility = 'hidden';
+                  //document.getElementById('f1_upload_form').innerHTML = result + '<label>File: <input id="myfile" name="myfile" type="file" size="30" /><\/label><label><input type="submit" name="submitBtn" class="sbtn" value="Upload" /><\/label>';
+                  //document.getElementById('f1_upload_form').style.visibility = 'visible';      
+                  return true;   
+            */
+            }
+        }
+    ]]>      
+    </require>
+    
+    <content>
+		<![CDATA[
+
+<style type="text/css">
+.validator_title { text-align:center; }
+.validator_subform { margin-left:1em; }
+.validator_note { font-size:smaller; font-style:italic; }
+</style>
+
+<h2 class="validator_title">OpenAjax Metadata Validator</h2>
+
+<p>This widget validates the correctness of OpenAjax Metadata files.
+	The widget can validate an XML file or all of the XML files within a ZIP archive.
+	The validator can work with files from your local system or files stored on a Web site.</p>
+
+<form id="local_or_remote_form">
+	<p>
+		<span>Location for files you want to validate: </span>
+		<select id="local_or_remote_select" onchange="OpenAjax.widget.byId('__WID__').local_remote_changed()">
+			<option value="local">My local file system</option>
+			<option value="remote">Remote Web site</option>
+		</select>
+	</p>
+</form>
+
+<div id="local_validation">
+	<h3>Validate files from my local system</h3>
+	<div class="validator_subform">
+		<p>Select the file you wish to validate, and then click "Upload and Validate". 
+		Validation results will appear at the bottom of this widget.</p>
+		<!-- HTML form that provides a file select control and an "Upload and Validate" submit button. -->
+		<form id="upload_form" action="upload_and_validate.php" method="post" enctype="multipart/form-data" target="upload_target" onsubmit="return OpenAjax.widget.byId('__WID__').startUpload();" >
+			<p class="validator_subform">
+				<label>File:  
+					<input id="myfile" name="myfile" type="file" size="30" />
+				</label>
+				<label>
+					<input type="submit" name="submitBtn" class="sbtn" value="Upload and Validate" />
+				</label>
+			</p>
+			<!-- upload/validation status message goes here -->
+			<p id="upload_status"></p>
+
+			<!-- Hidden IFRAME to allow upload to occur without forcing the whole mashup page to come down. -->
+			<iframe id="upload_target" name="upload_target" src="empty.html" style="width:0;height:0;border:3px solid #000;visibility:hidden"></iframe>
+		</form>
+	</div>
+</div>
+
+<div id="remote_validation">
+	<h3>Validate files stored on a remote Web site</h3>
+	<div class="validator_subform">
+		<p>(The UI for remote validation is not yet available.)</p>
+	</div>
+</div>
+
+<p class="validator_note">Note that OpenAjax Metadata file names must conform to particular file naming rules. 
+	The file names must match or end with the string "oam.xml".</p>
+
+		]]>
+    </content>
+</widget>

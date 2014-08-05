@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+        Copyright 2006-2008 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+
+<widget name="Yahoo Calendar" id="http://openajax.org/samples/widgets/yahoocalendar"
+        xmlns="http://openajax.org/metadata" spec="1.0"  sandbox="true" width="230" height="235">
+
+  <requires>
+		<library name="yui" version="2.6.0" src="http://yui.yahooapis.com/2.6.0/build/">
+            <require type="javascript" src="yahoo-dom-event/yahoo-dom-event.js"/>    
+            <require type="javascript" src="calendar/calendar-min.js"/>
+            <require type="css" src="calendar/assets/skins/sam/calendar.css"/> 
+		</library>
+  </requires>
+
+    <properties>
+      <property name='date' datatype='Date' defaultValue="" sharedAs='date'/>
+          <!-- publish='true' -->
+    </properties>
+
+    <content>
+      <![CDATA[
+          <div class="yui-skin-sam" style='width:100%;height:100%;' id="__WID__cal1Container"></div> 
+      ]]>      
+    </content>
+
+    <javascript>
+        (function() {
+            var updating = false;
+            
+            var cal1 = new YAHOO.widget.Calendar("__WID__cal1Container"); 
+            cal1.render();
+            
+            cal1.selectEvent.subscribe( function( type, args, obj ) {
+                    if ( updating ) {
+                        return;
+                    }
+                    var d = args[0][0];
+                    var date = new Date( d[0], d[1] - 1, d[2] );
+                    updating = true;
+                    OpenAjax.widget.byId("__WID__").OpenAjax.setPropertyValue( "date", date );
+                    updating = false; 
+            });
+            
+            OpenAjax.widget.byId("__WID__").onChangeDate = function( event )
+            {
+                if ( updating ) {
+                    return;
+                }
+                
+                updating = true;
+                cal1.select( event.newValue );
+                updating = false;
+                 
+    	        var selectedDates = cal1.getSelectedDates(); 
+    	        if (selectedDates.length > 0) { 
+    	            var firstDate = selectedDates[0]; 
+    	            cal1.cfg.setProperty("pagedate", (firstDate.getMonth()+1) + "/" + firstDate.getFullYear()); 
+    	            cal1.render(); 
+    	        } else { 
+    	            alert("Cannot select the date" + event.newValue.toDateString()); 
+    	        } 
+            };
+        })();
+    </javascript>
+</widget>

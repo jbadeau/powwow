@@ -1,0 +1,175 @@
+<html>
+<!--
+
+        Copyright 2006-2009 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+<title>How to Participate in the 2008 InteropFest</title>
+<head>
+<style type="text/css">
+h1 { text-align:center; }
+</style>
+</head>
+<body>
+<p style='text-align:center'><img style="height:5em" src="images/OpenAjaxAllianceBanner.jpg"/></p>
+<h1>How to Participate in the 2008 InteropFest</h1>
+
+<h2>Background</h2>
+<p>
+<em>The sample mashup application was the centerpiece for the OpenAjax Alliance interoperability event
+back in 2008, the 2008 InteropFest. This page contains the old instructions that told various
+classes of developers how they could participate in the 2008 InteropFest.</em>
+</p>
+<h2>Instructions</h2>
+<p>The following sections explain how different classes of developers can
+participate in the 
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>
+and how they can work with the 
+<a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>.
+Subsequent sections provide some additional information about the
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>.
+</p>
+
+<h3>JavaScript library developers</h3>
+<p>
+JavaScript library developers (or other developers with access to
+the JavaScript library's source code) are strongly encouraged to generate OpenAjax Metadata files that define the
+JavaScript APIs and widgets that are included in their library and then use the Validator widget
+within the <a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+to validate their OpenAjax Metadata files. To explain in more depth:
+</p>
+<ul>
+	<li><em>OpenAjax Metadata for JavaScript APIs</em> - By providing OpenAjax Metadata for your library's
+	JavaScript APIs, you will enable developers who use your library to take advantage of Ajax IDEs
+	that offer intelligent code assist and context-sensitive help.</li>
+	<li><em>OpenAjax Metadata for Widgets</em> - By providing OpenAjax Metadata for 
+	your library's widgets, you will enable your developers to take advantage of visual Web application design
+	(e.g., drag and drop onto a canvas) in selected Ajax IDEs. Additionally, you will have made your widgets
+	"mashable" in that they will be ready for use within mashup editors such as the 
+	<a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>.</li>
+</ul>
+<p>
+The <a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+includes a "Validator" widget that allows you to upload your
+OpenAjax Metadatata files (either in the form of a single XML file or a ZIP package) and
+validate your XML file(s) against the OpenAjax Metadata language schema. Library widgets
+that have corresponding OpenAjax Metadata files can also be uploaded to the
+Sample Mashup Application's repository, which will cause the widget to appear in the
+Sample Mashup Application's list of widgets, and therefore can be included within a mashup.
+A JavaScript library can claim to be a successful participant in the 
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>
+by producing OpenAjax Metadata files for a subset of their feature where those file validate successfully against the language schema.
+</p>
+
+<h3>Web Widget developers</h3>
+
+<p>
+(For the purposes of this discussion, a 
+"Web Widget", aka Gadget, is a standalone Web component that can be embedded into other applications.
+One of the leading formats in the industry for Web Widgets today is Google Gadgets.)
+</p>
+<p>
+Web Widget developers are strongly encouraged to create an OpenAjax Metadata file for their
+Web Widget, then use the Validator widgets within the 
+<a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+to validate their XML, and if possible upload the file to the repository so that it can
+be included within user-created mashups. 
+A Web Widget developer can claim to be a successful participant in the 
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>
+by producing an OpenAjax Metadata file for their widget where the file validates successfully against the language schema.
+</p>
+
+<h3>IDE developers</h3>
+<p>
+IDE developers should add support for both aspects of OpenAjax Metadata to their products:
+</p>
+<ul>
+	<li><em>OpenAjax Metadata for JavaScript APIs</em> - This will allow your IDE
+	to provide intelligent code assist and context-sensitive help for arbitrary
+	JavaScript libraries.</li>
+	<li><em>OpenAjax Metadata for Widgets</em> - This will allow your IDE to support
+	rich visual editing with widgets from arbitrary Ajax libraries.</li>
+</ul>
+<p>
+An IDE can claim to be a successful participant in the 
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>
+by consuming OpenAjax Metadata files and demonstrating user interface features that
+reflect the information from the OpenAjax Metadata files.
+</p>
+
+<h3>Mashup editor developers</h3>
+<p>
+Mashup editor developers should add support for OpenAjax Metadata for Widgets and
+OpenAjax Hub 2.0 to their products. This will enable your mashup editor
+to support the industry standard for Web Widgets and support the secure
+mashup runtime framework provided by OpenAjax Hub 2.0.
+</p>
+<p>
+A mashup editor can claim to be a successful participant in the 
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>
+by consuming OpenAjax Metadata files for widgets and/or including
+support for OpenAjax Hub 2.0.
+</p>
+<p>
+One way for mashup editor developers to study the secure mashup techniques
+use by the 
+<a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+is to run the 
+<a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+within a tool such as Firebug and examine the use of IFRAMEs in different subdomains
+to achieve widget isolation.
+</p>
+
+<h3>Users</h3>
+<p>
+Users who are interested in learning more about user-designed mashups
+(i.e., where applications are assembled without programming), or are interested in learning more about "secure mashups",
+can play with the mashup editor to add widgets to the canvas and link the widgets so that data can be passed
+from one widget to another, all within the context of the security management features that are included
+in the <a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+(due to OpenAjax Hub 2.0 being used under the hood). 
+</p>
+	
+<h3>Other topics relevant to the 2008 InteropFest</h3>
+<p>
+While the <a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+is the centerpiece of the 
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>,
+there are other aspects to the 
+<a href="http://www.openajax.org/member/wiki/2008_InteropFest">2008 InteropFest</a>:
+</p>
+<ul>
+	<li><strong>Mashup editor open source</strong> - While this 
+	<a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a>
+	has no intent to ever becoming a commercial-grade software product, 
+	the underlying code is designed to provide major pieces of underlying technology
+	by which commercial-grade applications can be built. In particular,
+	the open source logic for utilizing 
+	<a href="http://www.openajax.org/member/wiki/OpenAjax_Hub_2.0_Specification">OpenAjax Hub 2.0</a>
+	and for processing 
+	<a href="http://www.openajax.org/member/wiki/OpenAjax_Metadata_Specification">OpenAjax Metadata</a>
+	are designed for reuse by the industry.</li>
+	<li><strong>JavaScript API documentation conversion tools</strong> - The OpenAjax Alliance open source
+	project includes tools that help convert inline documentation comments, particular JSDoc, into
+	OpenAjax Metadata. These tools can help JavaScript library developers automate the process
+	for creation OpenAjax Metadata files for their JavaScript APIs. In one common workflow,
+	the library developers standardize on JSDoc for inline comments, and then run the open source tools
+	to generate OpenAjax Metadata.</li>
+	<li><strong>Google Gadgets support</strong> - The 
+	<a href="http://www.openajax.org/2008_InteropFest/mashupapp">Sample Mashup Application</a> supports two
+	widget formats: OpenAjax Metadata for Widgets and (via adapter logic) Google Gadgets.</li>
+</ul>
+  
+</body>
+</html>

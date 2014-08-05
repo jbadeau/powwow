@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+        Copyright 2006-2008 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+<widget name="GoogleMap" id="http://openajax.org/samples/widgets/GoogleMap"
+		jsClass='GoogleMap' spec="1.0" width="400" height="400"
+		xmlns="http://openajax.org/metadata">
+
+    <properties>
+      <property name="address" sharedAs="address" datatype="String" defaultValue="Austin,TX">
+          <!-- subscribe="true" -->
+          <description>The address to display in the map. Can also be bound to a result set to map all rows.</description>
+      </property>
+      <!-- <property name="key" datatype="String"/>
+      <property name="pushpin" datatype="String"/>
+          <description>A web addressable file path for PushPin PNG image.</description>
+      </property> -->
+      <property name="zoom" datatype="String" defaultValue="7" sharedAs="geospatial.zoom"/>
+          <!-- subscribe="true" -->
+      <property name="coords" datatype="String" defaultValue="29.48742484748479, -98.294677734375" sharedAs="geospatial.coords"/>
+          <!-- subscribe="true" -->
+      <!-- <property name="bubble" datatype="String"/> -->
+    </properties>
+
+    <content type='page' src='http://www.openajax.org/2008_InteropFest/mashupapp/gadgets/samples/gadgets/googlemap/googlemap.php'>
+    </content>
+    
+</widget>

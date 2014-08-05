@@ -1,0 +1,89 @@
+TODO
+====
+
+	(key: L = loader.js, M = Dojo-based mashup app sample)
+
+* (L, M) special handling for inline widgets, in particular how to reconcile
+	duplicate resource requires
+	* Allow user to pass in array of existing resources to Loader.createMany().
+	  This is so that when reconciling resources for inline widgets, the Loader
+	  code can also take into account the libraries and JS files that the page
+	  has already loaded. For example, if a mashup is built on top of Dojo and
+	  then tries to load several widgets which require Dojo, then the Loader
+	  reconciliation code would know not to add Dojo to the page since it has
+	  already been loaded.
+	* Also need to handle case where a single inline widget is added to the
+	  page. Maybe keep around an array of inline requires that have already
+	  been handled -- when creating inline widget on page, don't add requires
+	  that exist in array. Only problem is with preload/postload for already
+	  existing requires.
+	* "The built-in logic for loader.js needs to be simple. I would suggest if
+	  src= and version= are exactly the same, then OK to have two inline widgets
+	  using the same resource. Else, at least one has to be sandboxed."
+* (L, M) Name changes to some APIs:
+	getAvailableDimensions() -> getAvailableSize()
+	getDimensions() -> getSize()
+	adjustDimensions() -> requestSizeChange()
+	requestMode() -> requestModeChange()
+* (L, M) subdomains
+* (L) Change loader.js/widget.html file names (i.e. "OpenAjaxWidgetLoader.js")
+* (L) Make Loader.loadMetadata() a "static" function, so Loader class doesn't
+	have to be instantiated in order to get metadata object?
+* (L, M) If widget fails to load (as in unittest1), title still says
+	"...loading..." and it cannot be removed from canvas.
+* (M) z-order -- new widgets appear below existing widgets
+* (M) saving
+* (M) wiring doesn't work
+* (L, M) no mode (view) support yet
+* (M) why do iframed widgets have an 18/19px offset at top?
+    * extpanel widget is even worse
+    * JS library related? (Dojo, ext)
+* (M) some sample widgets are broken:
+	* helloworld3
+	* propertyDefaultTester
+	* redo Google Maps widget
+	* Editor (relies on tryGadget.php)
+	* flex
+* (M) "option" properties don't display correctly in propertyEditor (see
+	OptionTester).
+* (M) Move "layout" folder out of "samples/gadgets".
+* (M) Make JS library sample widgets as small as possible (i.e. Dojo Calendar).
+	Try to make self-contained (no external JS file) and have no jsClass.
+* (L) Do we need the base href?
+* (L) When calling widget API callbacks (i.e. onLoad, onChange, etc), wrap in
+	try/catch.
+* (L) allow loadMetadata() to work in Rhino
+* (L, M) don't do caching in loader.js -- leave it up to higher level
+* (L) Use onPublish/onSubscribe callbacks to make sure that pubsub events of a
+	given widget can only be seen by that widget and not others.
+* (L) Add OpenAjax.widget.Error and improve error handling/reporting.
+* (L) If <content> contains a <script> tag, it might be cross-domain. Currently,
+	the code just does an XHR for any <script> tags pulled from <content>, which
+	would fail if cross-domain.  Need a better solution.
+* (M) Have a common Dojo for both 'gadgets' and 'repository'?  Maybe change
+	instructions to put 'dojo' dir as sibling of 'gadgets' and 'repository'.
+* (M) Mashup app still uses gadgets.php, which in turn uses config.php (but only
+	for REPOSITORY_URL).  Need to get rid of this PHP dependency.
+* (L) Widget JS should be in its own closure.  For example, if inside of an
+	inline <require>, the code says "var foo = function() {...}", then "foo"
+	should not be in the global scope.  If it is inside of closure, can the
+	loader code see those variables (i.e. in the case where "jsClass='foo'")?
+* (M) Drag/drop from widget palette doesn't work.
+* (L) Both ProxyWidget and RemoteWidget contain a copy of the widget metadata
+	object (this._spec). However, ProxyWidget only needs a small subset of the
+	object's properties. After ProxyWidget sends copy of object to RemoteWidget,
+	it should pare down the properties in the object, in order to save memory.
+* (L) Properties: for simple data types, convert the value from the string. For
+	example, if the datatype is "Number", the value should be 3 rather than "3".
+	For complex types (Array, Object, "Number|String", ...), keep the value as a
+	string.
+* (M) Repository seems to identify widgets based on their title, rather than
+	their 'id' attr as specified in the widget XML.  For example, the repo
+	doesn't allow you to have two widgets with 'Calendar' title, even if they
+	have a different 'id'.
+* (L) The Loader class attempts to generate some paths based on script elements
+	in the DOM (see vars _tunnelURI, _hubBaseJS).  The code in widget.html,
+	though, dynamically loads these scripts, rather than creating script
+	elements.  So if a Loader class is instantiated within an iframed widget
+	that is loaded by another Loader class, then the inner Loader will not
+	initialize properly and will not be able to load iframed widgets.

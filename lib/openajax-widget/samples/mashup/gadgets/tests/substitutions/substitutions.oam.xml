@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+        Copyright 2009 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+-->
+
+<widget name="Substitutions Test" id="http://openajax.org/samples/widgets/SubstitutionsTest"
+		spec="1.0" width="500" height="300" jsClass="oaa_sub"
+		xmlns="http://openajax.org/metadata">
+    <description locid="desc">This widget tests the substitution parts of the OAA spec. (fallback text)</description>
+    
+    <reference locid="nonexistent">This 'locid' doesn't exist.</reference>
+    
+    <locale messages="ALL_ALL.xml"/>
+    <locale lang="es" messages="es_ALL.xml"/>
+    <locale lang="fr-FR" messages="fr_FR.xml"/>
+    
+    <property name="prop1" defaultValue="This is the default value."/>
+    <property name="prop2" defaultValue="'bar' &amp; 'baz'"/>
+    
+    <require type="javascript">
+    <![CDATA[
+        var oaa_sub = function() {};
+        oaa_sub.prototype = {
+            onLoad: function() {
+                var v = [ "foo", "id1", "bar", "baz", "id2" ];
+                for ( var i = 0; i < v.length; i++ ) {
+                    var e = document.getElementById( "__WID__" + v[i] );
+                    e.innerHTML = v[i] + " = " + eval( v[i] );
+                }
+            }
+        };
+    ]]>
+    </require>
+    
+    <javascript>
+        var foo = "@@escapequotes(prop2)@@";
+        var id1 = "__WID__";
+    </javascript>
+    <javascript src="javascript1.js"/>
+    
+    <content src="content1.html"/>
+    <content mode="content2">
+    <![CDATA[
+        <div style="width:100%; height:100%; overflow:auto;">
+            <p>This is a cat: ##cat##</p>
+            <p>This is a dog: ##dog##</p>
+            <p>This is a horse: ##horse##</p>
+            <p>This is a goat: ##goat##</p>
+            <p>This is a non-specified animal: ##octopus##</p>
+            <p>Entity encode a non-specified animal: ##entityencode(octopus)##</p>
+            
+            <p>This is the French Riviera: ##french_riviera##</p>
+            <p>Entity encode the French Riviera: ##entityencode(french_riviera)##</p>
+            <p>Escape quotes the French Riviera: ##escapequotes(french_riviera)##</p>
+            
+            <p>BIDI_START_EDGE: __BIDI_START_EDGE__</p>
+            <p>BIDI_END_EDGE: __BIDI_END_EDGE__</p>
+            <p>BIDI_DIR: __BIDI_DIR__</p>
+            <p>BIDI_REVERSE_DIR: __BIDI_REVERSE_DIR__</p>
+            <p>BIDI_FOO_BAR should not be replaced: __BIDI_FOO_BAR__</p>
+            
+            <p>property prop1: @@prop1@@</p>
+            <p>property prop2: @@prop2@@</p>
+            <p>property entityencode prop2: @@entityencode(prop2)@@</p>
+            <p>property escapequotes prop2: @@escapequotes(prop2)@@</p>
+            <p>nonexistent property propX: @@propX@@</p>
+            
+            <h3>javascript</h3>
+            <p id="__WID__foo"/>
+            <p id="__WID__id1"/>
+            <p id="__WID__bar"/>
+            <p id="__WID__baz"/>
+            <p id="__WID__id2"/>
+        </div>
+    ]]>
+    </content>
+</widget>
