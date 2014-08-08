@@ -19,7 +19,7 @@
     "bugs": {
         "url": "https://github.com/jbadeau/powwow/issues"
     },
-    "main": "./powwow.js",
+    "main": "./powwow.ts",
     "authors": [
         {
             "name": "Jose Badeau",
