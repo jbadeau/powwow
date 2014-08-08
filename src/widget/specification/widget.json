@@ -1,6 +1,6 @@
 {
    "id":"http://example.org/exampleWidget",
-   "version":"2.0 Beta",
+   "version":"0.1.0",
    "height":"200",
    "width":"200",
    "viewmodes":[
