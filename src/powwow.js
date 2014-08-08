@@ -6,7 +6,7 @@
 		module.exports = factory();
 	}
 	else {
-		root.returnExports = factory();
+		root.powwow = factory();
 	}
 }(this, function() {
 	var powwow = {
