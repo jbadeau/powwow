@@ -1,0 +1,48 @@
+{
+   "id":"http://example.org/exampleWidget",
+   "version":"2.0 Beta",
+   "height":"200",
+   "width":"200",
+   "viewmodes":[
+      "windowed, floating"
+   ],
+   "defaultlocale":"en-us",
+   "name":"The example Widget!",
+   "short-name":"Example 2.0",
+   "description":"A sample widget to demonstrate some of the possibilities.",
+   "content":{
+      "src":"myWidget.html",
+      "type":"page",
+      "mime-type":"text/html"
+   },
+   "features":[
+      {
+         "name":"http://example.com/camera",
+         "params":[
+            {
+               "name":"autofocus",
+               "value":"true"
+            }
+         ]
+      }
+   ],
+   "preference":[
+      {
+         "name":"apikey",
+         "value":"ea31ad3a23fd2f",
+         "readonly":"true"
+      }
+   ],
+   "author":{
+      "name":"Foo Bar Corp",
+      "href":"http://foo-bar.example.org/",
+      "email":"foo-bar@example.org"
+   },
+   "icon":{
+      "src":"icons/example.png"
+   },
+   "icon":{
+      "src":"icons/boo.png"
+   },
+   "license":"MIT License..."
+}
