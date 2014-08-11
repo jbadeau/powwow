@@ -9,8 +9,6 @@
 		root.powwow = factory();
 	}
 }(this, function() {
-	var powwow = {
-		VERSION : '0.1.0'
-	};
+	var powwow = {};
 	return powwow;
 }));
