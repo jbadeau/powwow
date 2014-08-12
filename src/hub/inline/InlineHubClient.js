@@ -8,6 +8,8 @@
 	}
 }(this, function(HubClient) {
 
+	'use strict';
+
 	function InlineHubClient() {
 	}
 

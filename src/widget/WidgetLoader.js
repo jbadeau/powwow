@@ -7,6 +7,8 @@
 	}
 }(this, function(Hub, IframeWidget, InlineWidget) {
 
+	'use strict';
+
 	function WidgetLoader() {
 	}
 

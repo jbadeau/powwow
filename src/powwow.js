@@ -6,13 +6,15 @@
 		root.powwow = factory(root.Hub, root.HubClient, root.Container, root.IframeContainer, root.IframeHubClient, root.InlineContainer, root.InlineHubClient, root.Widget, root.IframeWidget, root.InlineWidget, root.WidgetLoader);
 	}
 }(this, function(Hub, HubClient, Container, IframeContainer, IframeHubClient, InlineContainer, InlineHubClient, Widget, IframeWidget, InlineWidget, WidgetLoader) {
+
+	'use strict';
+
 	var powwow = {};
 
 	powwow.VERSION = "0.1.0";
 
 	// hub
 	powwow.hub = {};
-	powwow.hub.Hub = Hub;
 	powwow.hub.HubClient = HubClient;
 	powwow.hub.Container = Container;
 	powwow.hub.iframe = {};
@@ -21,15 +23,17 @@
 	powwow.hub.inline = {};
 	powwow.hub.inline.InlineContainer = InlineContainer;
 	powwow.hub.inline.InlineHubClient = InlineHubClient;
+	powwow.hub.Hub = Hub;
 
 	// widget
 	powwow.widget = {};
 	powwow.widget.Widget = Widget;
-	powwow.widget.WidgetLoader = WidgetLoader;
 	powwow.widget.iframe = {};
 	powwow.widget.iframe.IframeWidget = IframeWidget;
 	powwow.widget.inline = {};
 	powwow.widget.inline.InlineWidget = InlineWidget;
+	powwow.widget.WidgetLoader = WidgetLoader;
 
 	return powwow;
+
 }));

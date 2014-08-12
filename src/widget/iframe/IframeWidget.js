@@ -7,6 +7,8 @@
 	}
 }(this, function(Widget) {
 
+	'use strict';
+
 	function IframeWidget() {
 	}
 

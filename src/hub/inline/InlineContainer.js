@@ -7,6 +7,8 @@
 	}
 }(this, function(Container) {
 
+	'use strict';
+
 	function InlineContainer() {
 	}
 

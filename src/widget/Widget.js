@@ -7,6 +7,8 @@
 	}
 }(this, function() {
 
+	'use strict';
+
 	function Widget() {
 	}
 
