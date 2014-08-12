@@ -24,6 +24,7 @@ bin
 .settings
 .buildpath
 .externalToolBuilders
+WebContent
 
 # ---- Mac OS X
 .DS_Store
