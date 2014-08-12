@@ -1,16 +1,16 @@
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
-		define([], factory);
+		define([ './Hub' ], factory);
 	}
 	else {
-		root.Hub = factory();
+		root.ManagedHub = factory(root.Hub);
 	}
-}(this, function() {
+}(this, function(Hub) {
 
 	'use strict';
 
 	/**
-	 * Create a new Hub instance
+	 * Create a new ManagedHub instance
 	 * 
 	 * @constructor
 	 * 
@@ -51,7 +51,7 @@
 	 * @throws {OpenAjax.hub.Error.BadParameters}
 	 *             if any of the required parameters are missing
 	 */
-	function Hub(params) {
+	function ManagedHub(params) {
 		if (!params || !params.onPublish || !params.onSubscribe)
 			throw new Error(OpenAjax.hub.Error.BadParameters);
 
@@ -90,7 +90,88 @@
 		this._pubQ = [];
 	}
 
-	Hub.prototype = {
+	/**
+	 * Error
+	 * 
+	 * Standard Error names used when the standard functions need to throw
+	 * Errors.
+	 */
+	ManagedHub.error = {
+
+		/**
+		 * // Either a required argument is missing or an invalid argument was //
+		 * provided
+		 */
+		BadParameters : "powwow.hub.Error.BadParameters",
+
+		/**
+		 * The specified hub has been disconnected and cannot perform the
+		 * requested operation:
+		 */
+		Disconnected : "powwow.hub.Error.Disconnected",
+
+		/**
+		 * Container with specified ID already exists:
+		 */
+		Duplicate : "powwow.hub.Error.Duplicate",
+
+		/**
+		 * The specified ManagedHub has no such Container (or it has been
+		 * removed)
+		 */
+		NoContainer : "powwow.hub.Error.NoContainer",
+
+		/**
+		 * The specified ManagedHub or Container has no such subscription
+		 */
+		NoSubscription : "powwow.hub.Error.NoSubscription",
+
+		/**
+		 * Permission denied by manager's security policy
+		 */
+		NotAllowed : "powwow.hub.Error.NotAllowed",
+
+		/**
+		 * Wrong communications protocol identifier provided by Container or
+		 * HubClient
+		 */
+		WrongProtocol : "powwow.hub.Error.WrongProtocol",
+
+		/**
+		 * A 'tunnelURI' param was specified, but current browser does not
+		 * support security features
+		 */
+		IncompatBrowser : "powwow.hub.Error.IncompatBrowser"
+	};
+
+	/**
+	 * SecurityAlert
+	 * 
+	 * Standard codes used when attempted security violations are detected.
+	 * Unlike Errors, these codes are not thrown as exceptions but rather passed
+	 * into the SecurityAlertHandler function registered with the Hub instance.
+	 */
+	ManagedHub.securityAlert = {
+
+		/**
+		 * Container did not load (possible frame phishing attack)
+		 */
+		LoadTimeout : "powwow.hub.SecurityAlert.LoadTimeout",
+
+		/**
+		 * Hub suspects a frame phishing attack against the specified container
+		 */
+		FramePhish : "powwow.hub.SecurityAlert.FramePhish",
+
+		/**
+		 * Hub detected a message forgery that purports to come to a specified
+		 * container.
+		 */
+		ForgedMsg : "powwow.hub.SecurityAlert.ForgedMsg"
+
+	};
+
+	ManagedHub.prototype = {
 
 		/**
 		 * Subscribe to a topic on behalf of a Container. Called only by
@@ -797,6 +878,6 @@
 
 	};
 
-	return Hub;
+	return ManagedHub;
 
 }));

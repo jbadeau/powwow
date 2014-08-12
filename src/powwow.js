@@ -1,11 +1,11 @@
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
-		define([ './hub/Hub', './hub/HubClient', './hub/Container', './hub/iframe/IframeContainer', './hub/iframe/IframeHubClient', './hub/inline/InlineContainer', './hub/inline/InlineHubClient', './widget/Widget', './widget/iframe/IframeWidget', './widget/inline/InlineWidget', './widget/WidgetLoader' ], factory);
+		define([ './hub/Hub', './hub/ManagedHub', './hub/HubClient', './hub/Container', './hub/iframe/IframeContainer', './hub/iframe/IframeHubClient', './hub/inline/InlineContainer', './hub/inline/InlineHubClient', './widget/Widget', './widget/iframe/IframeWidget', './widget/inline/InlineWidget', './widget/WidgetLoader' ], factory);
 	}
 	else {
-		root.powwow = factory(root.Hub, root.HubClient, root.Container, root.IframeContainer, root.IframeHubClient, root.InlineContainer, root.InlineHubClient, root.Widget, root.IframeWidget, root.InlineWidget, root.WidgetLoader);
+		root.powwow = factory(root.Hub, root.ManagedHub, root.HubClient, root.Container, root.IframeContainer, root.IframeHubClient, root.InlineContainer, root.InlineHubClient, root.Widget, root.IframeWidget, root.InlineWidget, root.WidgetLoader);
 	}
-}(this, function(Hub, HubClient, Container, IframeContainer, IframeHubClient, InlineContainer, InlineHubClient, Widget, IframeWidget, InlineWidget, WidgetLoader) {
+}(this, function(Hub, ManagedHub, HubClient, Container, IframeContainer, IframeHubClient, InlineContainer, InlineHubClient, Widget, IframeWidget, InlineWidget, WidgetLoader) {
 
 	'use strict';
 
@@ -15,6 +15,8 @@
 
 	// hub
 	powwow.hub = {};
+	powwow.hub.Hub = Hub;
+	powwow.hub.Hub = ManagedHub;
 	powwow.hub.HubClient = HubClient;
 	powwow.hub.Container = Container;
 	powwow.hub.iframe = {};
@@ -23,7 +25,6 @@
 	powwow.hub.inline = {};
 	powwow.hub.inline.InlineContainer = InlineContainer;
 	powwow.hub.inline.InlineHubClient = InlineHubClient;
-	powwow.hub.Hub = Hub;
 
 	// widget
 	powwow.widget = {};
