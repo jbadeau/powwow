@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>receiver</title>
+  
+  <style>
+    textarea {
+      width:270px;
+      height: 100px;
+      padding: 1px 0px;
+    }
+    body {
+        margin: 5px;
+    }
+  </style>
+    
+    <!-- OpenAjax scripts -->
+    <script type="text/javascript" src="/hub20/src/OpenAjax-mashup.js"></script>
+
+    <!-- containers -->
+    <script type="text/javascript" src="/hub20/src/containers/inline/inline.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/crypto.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/iframe.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/json2.js"></script>
+
+    <!-- RPC -->
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc-dependencies.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/fe.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/ifpc.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rmr.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/wpm.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc.js"></script>
+
+  <script>
+    if ( typeof console === 'undefined' ) {
+      try {
+        console = parent.console;
+      } catch(e) {}
+    }
+  </script>
+
+  <!-- Actual Application -->
+  <script type="text/javascript">
+
+    var hubClient = null;
+  
+    var log = function() {};
+    if ( typeof console != "undefined" ) {
+        log = function( msg ) {
+            console.log( msg );
+        }
+    }
+    
+    function init()
+    {
+      hubClient = new OpenAjax.hub.IframeHubClient({
+            HubClient: {
+                onSecurityAlert: onHubClientSecurityAlert,
+                log: log
+            }
+      });
+      hubClient.connect( onHubClientConnect );
+    }
+
+    // called when connection with mashup parent has been established
+    function onHubClientConnect( client, success, error ) {
+      if ( !success ) {
+        alert( "connection failed for " + client.getClientID() );
+        return;
+      }
+
+      // widget is now ready
+      
+      // listen for event
+      var subHandle = hubClient.subscribe( "topic1",
+              function( topic, data, subscriberData ) { /*onData*/
+                document.getElementById( "messages" ).value += data + "\n";
+              },
+              null /* scope */,
+              function( subscriberID, success, error ) { /*onComplete*/
+                if ( ! success ) {
+                  alert( "subscribe to topic1 failed for [" + hubClient.getClientID() + "]" );
+                  return;
+                }
+              }
+      );
+    }
+
+    function onHubClientSecurityAlert( source, alertType ) {
+        alert( "security alert from " + source.getClientID() );
+    }
+  </script>
+</head>
+<body onload="init();">
+
+<form>
+  received messages:<br>
+  <textarea id="messages" readonly="readonly"></textarea>
+</form>
+  
+</body>
+</html>

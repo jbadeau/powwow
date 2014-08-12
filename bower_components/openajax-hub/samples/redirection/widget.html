@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>receiver</title>
+  
+  <style>
+    textarea {
+      width:270px;
+      height: 100px;
+    }
+  </style>
+  
+<!--  <script src="/hub20/src/OpenAjax.js"></script>-->
+  <script src="/hub20/src/OpenAjax-mashup.js"></script>
+
+  <script src="/hub20/src/containers/iframe/json2.js"></script>
+  <script src="/hub20/src/containers/iframe/crypto.js"></script>
+  <script src="/hub20/src/containers/iframe/iframe.js"></script>
+  <script src="/hub20/src/containers/iframe/FIM.js"></script>
+
+  <!-- Actual Application -->
+  <script type="text/javascript">
+
+    var hubClient = null;
+  
+    function init()
+    {
+        if ( window.location.host == "c0.foo.bar.com" ) {
+            // simulate redirection to a different URL
+            var newLocation = window.location.href.replace( "http://c0.foo.bar.com", "http://c1.foo.bar.com" );
+            window.location.replace( newLocation );
+        } else {
+            connectClient();
+        }
+    }
+    
+    function connectClient()
+    {
+      hubClient = new OpenAjax.hub.IframeHubClient({
+            HubClient: {
+                onSecurityAlert: onHubClientSecurityAlert
+            }
+      });
+      hubClient.connect( onHubClientConnect );
+    }
+
+    // called when connection with mashup parent has been established
+    function onHubClientConnect( client, success, error ) {
+      if ( !success ) {
+        alert( "connection failed for " + client.getClientID() );
+        return;
+      }
+
+      // widget is now ready
+      
+      // listen for event
+      var subHandle = hubClient.subscribe( "topic1",
+              function( topic, data, subscriberData ) { /*onData*/
+                document.getElementById( "messages" ).value += data + "\n";
+              },
+              null /* scope */,
+              function( subscriberID, success, error ) { /*onComplete*/
+                if ( ! success ) {
+                  alert( "subscribe to topic1 failed for [" + hubClient.getClientID() + "]" );
+                  return;
+                }
+              }
+      );
+    }
+
+    function onHubClientSecurityAlert( source, alertType ) {
+        alert( "security alert from " + source.getClientID() );
+    }
+  </script>
+</head>
+<body onload="init();">
+
+<form>
+  received messages:<br>
+  <textarea id="messages" readonly="readonly"></textarea>
+</form>
+  
+</body>
+</html>

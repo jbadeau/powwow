@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<!--
+    This sample assumes that it is run from
+    http://mashup.foo.bar.com/hub20/samples/login_with_intermediate_hub/mashup.html.
+-->
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Login demo</title>
+
+    <!-- OpenAjax scripts -->
+<!--    <script src="/hub20/src/OpenAjax.js"></script>-->
+    <script src="/hub20/src/OpenAjax-mashup.js"></script>
+
+    <!-- iframe container -->
+    <script src="/hub20/src/containers/iframe/json2.js"></script>
+    <script src="/hub20/src/containers/iframe/crypto.js"></script>
+    <script src="/hub20/src/containers/iframe/iframe.js"></script>
+    <script src="/hub20/src/containers/iframe/FIM.js"></script>
+    
+    <!-- Actual Application -->
+    <script type="text/javascript">
+
+        if ( typeof console === 'undefined' ) {
+            console = {
+                log: function() {}
+            }
+        }
+
+        var hub = null;
+        
+        function init()
+        {
+            function publishMgr( topic, data, pubClient, subClient ) {
+                var pubClientID = pubClient ? pubClient.getClientID() : "manager";
+                var subClientID = subClient ? subClient.getClientID() : "manager";
+                console.log( "(MANAGER): PUB: " + pubClientID + " -> " + subClientID + " || topic: '" + topic + "' data: '" + data + "'" );
+                return true;
+            }
+
+            function subscribeMgr( topic, client ) {
+                var clientID = client ? client.getClientID() : "manager";
+                console.log( "(MANAGER): SUB: id: '" + clientID + "' topic: '" + topic + "'" );
+                return true;
+            }
+            
+            function unsubscribeMgr( topic, client ) {
+                var clientID = client ? client.getClientID() : "manager";
+                console.log( "(MANAGER): UNSUB: id: '" + clientID + "' topic: '" + topic + "'" );
+            }
+
+            hub = new OpenAjax.hub.ManagedHub({
+                onPublish: publishMgr,
+                onSubscribe: subscribeMgr,
+                onUnsubscribe: unsubscribeMgr
+            });
+
+            ////////////////////////////////////////////////////////////////////
+
+            function onClientConnect( container ) {
+                console.log( "++ " + container.getClientID() + " connected" );
+            }
+            function onClientDisconnect( container ) {
+                console.log( "-- " + container.getClientID() + " disconnected" );
+            }
+            function onClientSecurityAlert( container, securityAlert ) {
+                console.log( "!! security alert - id: '" + container.getClientID() + "' msg: '" + securityAlert + "'");
+            }
+            
+            var iframeAttrs = { className: "iframeContainer" };
+            
+            var client = new OpenAjax.hub.IframeContainer( hub, "widget",
+                {   Container: {
+                        onConnect: onClientConnect,
+                        onDisconnect: onClientDisconnect,
+                        onSecurityAlert: onClientSecurityAlert,
+                        log: function( msg ) { console.log( msg ); }
+                    },
+                    IframeContainer: {
+                        parent: document.getElementById( "widget" ),
+                        uri: "http://c1.foo.bar.com/hub20/samples/login_with_intermediate_hub/widget.html",
+                        tunnelURI: "http://mashup.foo.bar.com/hub20/src/containers/iframe/tunnel.html",
+                        iframeAttrs: iframeAttrs
+                    }
+                });
+            
+            ////////////////////////////////////////////////////////////////////
+
+            hub.subscribe( "topic1",
+                function( topic, data, subscriberData ) { /*onData*/
+                  document.getElementById( "mgr_input" ).value += data + "\n";
+                },
+                null /*scope*/,
+                function( subscriptionID, success, error ) { /*onComplete*/
+                    if ( ! success ) {
+                        console.log( "!! error - id: 'manager' msg: '" + error + "'" );
+                    }
+                }
+            );
+        }
+
+        function sendMessage(e)
+        {
+            var msg = document.getElementById("mgr_output").value;
+            hub.publish( "topic1", msg );
+
+            if ( e.stopPropagation ) e.stopPropagation();
+            e.cancelBubble = true;
+            return false;
+        }
+
+    </script>
+
+    <style type="text/css">
+        body {
+          padding: 5px;
+        }
+        div {
+          padding: 5px;
+          margin: 10px;
+        }
+        textarea {
+          width:270px;
+          height: 100px;
+        }
+        #manager {
+          float: left;
+        }
+        #widget {
+          float: left;
+          border: 1px solid black;
+          width: 310px;
+          height: 210px;
+        }
+        .iframeContainer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+
+<body onload="init();">
+  
+<div id="manager" style="border: 1px dotted black">
+  <b> manager app </b><br><br>
+  <form>
+    <input id="mgr_output" value="message from manager" type="text"/>
+    <button id="sendButton" onclick="return sendMessage(event);">send</button>
+    <br><br>
+    all messages:<br>
+    <textarea id="mgr_input" readonly="readonly"></textarea>
+  </form>
+</div>
+
+<div id="widget">
+    <b> widget </b><br><br>
+</div>
+  
+</body>
+</html>

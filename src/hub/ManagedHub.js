@@ -11,18 +11,18 @@
 
 	/**
 	 * Create a new ManagedHub instance
-	 * 
+	 *
 	 * @constructor
-	 * 
+	 *
 	 * This constructor automatically sets the ManagedHub's state to CONNECTED.
-	 * 
+	 *
 	 * @param {Object}
 	 *            params Parameters used to instantiate the ManagedHub. Once the
 	 *            constructor is called, the params object belongs exclusively
 	 *            to the ManagedHub. The caller MUST not modify it.
-	 * 
+	 *
 	 * The params object may contain the following properties:
-	 * 
+	 *
 	 * @param {Function}
 	 *            params.onPublish Callback function that is invoked whenever a
 	 *            data value published by a Container is about to be delivered
@@ -47,13 +47,13 @@
 	 * @param {Function}
 	 *            [params.log] Optional logger function. Would be used to log to
 	 *            console.log or equivalent.
-	 * 
-	 * @throws {OpenAjax.hub.Error.BadParameters}
+	 *
+	 * @throws {ManagedHub.error.BadParameters}
 	 *             if any of the required parameters are missing
 	 */
 	function ManagedHub(params) {
 		if (!params || !params.onPublish || !params.onSubscribe)
-			throw new Error(OpenAjax.hub.Error.BadParameters);
+			throw new Error(ManagedHub.error.BadParameters);
 
 		this._p = params;
 		this._onUnsubscribe = params.onUnsubscribe ? params.onUnsubscribe : null;
@@ -66,7 +66,7 @@
 					params.log.call(that._scope, "ManagedHub: " + msg);
 				}
 				catch (e) {
-					OpenAjax.hub._debugger();
+					console.error(e);
 				}
 			};
 		}
@@ -92,7 +92,7 @@
 
 	/**
 	 * Error
-	 * 
+	 *
 	 * Standard Error names used when the standard functions need to throw
 	 * Errors.
 	 */
@@ -146,7 +146,7 @@
 
 	/**
 	 * SecurityAlert
-	 * 
+	 *
 	 * Standard codes used when attempted security violations are detected.
 	 * Unlike Errors, these codes are not thrown as exceptions but rather passed
 	 * into the SecurityAlertHandler function registered with the Hub instance.
@@ -176,24 +176,24 @@
 		/**
 		 * Subscribe to a topic on behalf of a Container. Called only by
 		 * Container implementations, NOT by manager applications.
-		 * 
+		 *
 		 * This function: 1. Checks with the ManagedHub's onSubscribe security
 		 * policy to determine whether this Container is allowed to subscribe to
 		 * this topic. 2. If the subscribe operation is permitted, subscribes to
 		 * the topic and returns the ManagedHub's subscription ID for this
 		 * subscription. 3. If the subscribe operation is not permitted, throws
-		 * OpenAjax.hub.Error.NotAllowed.
-		 * 
+		 * ManagedHub.error.NotAllowed.
+		 *
 		 * When data is published on the topic, the ManagedHub's onPublish
 		 * security policy will be invoked to ensure that this Container is
 		 * permitted to receive the published data. If the Container is allowed
 		 * to receive the data, then the Container's sendToClient function will
 		 * be invoked.
-		 * 
+		 *
 		 * When a Container needs to create a subscription on behalf of its
 		 * client, the Container MUST use this function to create the
 		 * subscription.
-		 * 
+		 *
 		 * @param {OpenAjax.hub.Container}
 		 *            container A Container
 		 * @param {String}
@@ -202,18 +202,18 @@
 		 *            containerSubID Arbitrary string ID that the Container uses
 		 *            to represent the subscription. Must be unique within the
 		 *            context of the Container
-		 * 
+		 *
 		 * @returns managerSubID Arbitrary string ID that this ManagedHub uses
 		 *          to represent the subscription. Will be unique within the
 		 *          context of this ManagedHub
 		 * @type {String}
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this.isConnected() returns false
-		 * @throws {OpenAjax.hub.Error.NotAllowed}
+		 * @throws {ManagedHub.error.NotAllowed}
 		 *             if subscription request is denied by the onSubscribe
 		 *             security policy
-		 * @throws {OpenAjax.hub.Error.BadParameters}
+		 * @throws {ManagedHub.error.BadParameters}
 		 *             if one of the parameters, e.g. the topic, is invalid
 		 */
 		subscribeForClient : function(container, topic, containerSubID) {
@@ -226,26 +226,26 @@
 					sid : containerSubID
 				});
 			}
-			throw new Error(OpenAjax.hub.Error.NotAllowed);
+			throw new Error(ManagedHub.error.NotAllowed);
 		},
 
 		/**
 		 * Unsubscribe from a subscription on behalf of a Container. Called only
 		 * by Container implementations, NOT by manager application code.
-		 * 
+		 *
 		 * This function: 1. Destroys the specified subscription 2. Calls the
 		 * ManagedHub's onUnsubscribe callback function
-		 * 
+		 *
 		 * This function can be called even if the ManagedHub is not in a
 		 * CONNECTED state.
-		 * 
+		 *
 		 * @param {OpenAjax.hub.Container}
 		 *            container container instance that is unsubscribing
 		 * @param {String}
 		 *            managerSubID opaque ID of a subscription, returned by
 		 *            previous call to subscribeForClient()
-		 * 
-		 * @throws {OpenAjax.hub.Error.NoSubscription}
+		 *
+		 * @throws {ManagedHub.error.NoSubscription}
 		 *             if subscriptionID does not refer to a valid subscription
 		 */
 		unsubscribeForClient : function(container, managerSubID) {
@@ -256,7 +256,7 @@
 		/**
 		 * Publish data on a topic on behalf of a Container. Called only by
 		 * Container implementations, NOT by manager application code.
-		 * 
+		 *
 		 * @param {OpenAjax.hub.Container}
 		 *            container Container on whose behalf data should be
 		 *            published
@@ -266,10 +266,10 @@
 		 *            data Valid publishable data. To be portable across
 		 *            different Container implementations, this value SHOULD be
 		 *            serializable as JSON.
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this.isConnected() returns false
-		 * @throws {OpenAjax.hub.Error.BadParameters}
+		 * @throws {ManagedHub.error.BadParameters}
 		 *             if one of the parameters, e.g. the topic, is invalid
 		 */
 		publishForClient : function(container, topic, data) {
@@ -279,7 +279,7 @@
 
 		/**
 		 * Destroy this ManagedHub
-		 * 
+		 *
 		 * 1. Sets state to DISCONNECTED. All subsequent attempts to add
 		 * containers, publish or subscribe will throw the Disconnected error.
 		 * We will continue to allow "cleanup" operations such as
@@ -297,14 +297,14 @@
 		/**
 		 * Get a container belonging to this ManagedHub by its clientID, or null
 		 * if this ManagedHub has no such container
-		 * 
+		 *
 		 * This function can be called even if the ManagedHub is not in a
 		 * CONNECTED state.
-		 * 
+		 *
 		 * @param {String}
 		 *            containerId Arbitrary string ID associated with the
 		 *            container
-		 * 
+		 *
 		 * @returns container associated with given ID
 		 * @type {OpenAjax.hub.Container}
 		 */
@@ -316,10 +316,10 @@
 		/**
 		 * Returns an array listing all containers belonging to this ManagedHub.
 		 * The order of the Containers in this array is arbitrary.
-		 * 
+		 *
 		 * This function can be called even if the ManagedHub is not in a
 		 * CONNECTED state.
-		 * 
+		 *
 		 * @returns container array
 		 * @type {OpenAjax.hub.Container[]}
 		 */
@@ -333,43 +333,43 @@
 
 		/**
 		 * Add a container to this ManagedHub.
-		 * 
+		 *
 		 * This function should only be called by a Container constructor.
-		 * 
+		 *
 		 * @param {OpenAjax.hub.Container}
 		 *            container A Container to be added to this ManagedHub
-		 * 
-		 * @throws {OpenAjax.hub.Error.Duplicate}
+		 *
+		 * @throws {ManagedHub.error.Duplicate}
 		 *             if there is already a Container in this ManagedHub whose
 		 *             clientId is the same as that of container
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this.isConnected() returns false
 		 */
 		addContainer : function(container) {
 			this._assertConn();
 			var containerId = container.getClientID();
 			if (this._containers[containerId]) {
-				throw new Error(OpenAjax.hub.Error.Duplicate);
+				throw new Error(ManagedHub.error.Duplicate);
 			}
 			this._containers[containerId] = container;
 		},
 
 		/**
 		 * Remove a container from this ManagedHub immediately
-		 * 
+		 *
 		 * This function can be called even if the ManagedHub is not in a
 		 * CONNECTED state.
-		 * 
+		 *
 		 * @param {OpenAjax.hub.Container}
 		 *            container A Container to be removed from this ManagedHub
-		 * 
-		 * @throws {OpenAjax.hub.Error.NoContainer}
+		 *
+		 * @throws {ManagedHub.error.NoContainer}
 		 *             if no such container is found
 		 */
 		removeContainer : function(container) {
 			var containerId = container.getClientID();
 			if (!this._containers[containerId]) {
-				throw new Error(OpenAjax.hub.Error.NoContainer);
+				throw new Error(ManagedHub.error.NoContainer);
 			}
 			container.remove();
 			delete this._containers[containerId];
@@ -379,16 +379,16 @@
 
 		/**
 		 * Subscribe to a topic.
-		 * 
+		 *
 		 * This implementation of Hub.subscribe is synchronous. When subscribe
 		 * is called:
-		 * 
+		 *
 		 * 1. The ManagedHub's onSubscribe callback is invoked. The container
 		 * parameter is null, because the manager application, rather than a
 		 * container, is subscribing. 2. If onSubscribe returns true, then the
 		 * subscription is created. 3. The onComplete callback is invoked. 4.
 		 * Then this function returns.
-		 * 
+		 *
 		 * @param {String}
 		 *            topic A valid topic string. MAY include wildcards.
 		 * @param {Function}
@@ -406,29 +406,29 @@
 		 *            which is handed back to the client application in the
 		 *            subscriberData parameter of the onData and onComplete
 		 *            callback functions.
-		 * 
+		 *
 		 * @returns subscriptionID Identifier representing the subscription.
 		 *          This identifier is an arbitrary ID string that is unique
 		 *          within this Hub instance
 		 * @type {String}
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
-		 * @throws {OpenAjax.hub.Error.BadParameters}
+		 * @throws {ManagedHub.error.BadParameters}
 		 *             if the topic is invalid (e.g. contains an empty token)
 		 */
 		subscribe : function(topic, onData, scope, onComplete, subscriberData) {
 			this._assertConn();
 			this._assertSubTopic(topic);
 			if (!onData) {
-				throw new Error(OpenAjax.hub.Error.BadParameters);
+				throw new Error(ManagedHub.error.BadParameters);
 			}
 
 			scope = scope || window;
 
 			// check subscribe permission
 			if (!this._invokeOnSubscribe(topic, null)) {
-				this._invokeOnComplete(onComplete, scope, null, false, OpenAjax.hub.Error.NotAllowed);
+				this._invokeOnComplete(onComplete, scope, null, false, ManagedHub.error.NotAllowed);
 				return;
 			}
 
@@ -452,27 +452,27 @@
 
 		/**
 		 * Publish an event on a topic
-		 * 
+		 *
 		 * This implementation of Hub.publish is synchronous. When publish is
 		 * called:
-		 * 
+		 *
 		 * 1. The target subscriptions are identified. 2. For each target
 		 * subscription, the ManagedHub's onPublish callback is invoked. Data is
 		 * only delivered to a target subscription if the onPublish callback
 		 * returns true. The pcont parameter of the onPublish callback is null.
 		 * This is because the ManagedHub, rather than a container, is
 		 * publishing the data.
-		 * 
+		 *
 		 * @param {String}
 		 *            topic A valid topic string. MUST NOT include wildcards.
 		 * @param {*}
 		 *            data Valid publishable data. To be portable across
 		 *            different Container implementations, this value SHOULD be
 		 *            serializable as JSON.
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
-		 * @throws {OpenAjax.hub.Error.BadParameters}
+		 * @throws {ManagedHub.error.BadParameters}
 		 *             if the topic cannot be published (e.g. contains wildcards
 		 *             or empty tokens) or if the data cannot be published (e.g.
 		 *             cannot be serialized as JSON)
@@ -485,14 +485,14 @@
 
 		/**
 		 * Unsubscribe from a subscription
-		 * 
+		 *
 		 * This implementation of Hub.unsubscribe is synchronous. When
 		 * unsubscribe is called:
-		 * 
+		 *
 		 * 1. The subscription is destroyed. 2. The ManagedHub's onUnsubscribe
 		 * callback is invoked, if there is one. 3. The onComplete callback is
 		 * invoked. 4. Then this function returns.
-		 * 
+		 *
 		 * @param {String}
 		 *            subscriptionID A subscriptionID returned by
 		 *            Hub.subscribe()
@@ -503,16 +503,16 @@
 		 *            [scope] When onComplete callback function is invoked, the
 		 *            JavaScript "this" keyword refers to this scope object. If
 		 *            no scope is provided, default is window.
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
-		 * @throws {OpenAjax.hub.Error.NoSubscription}
+		 * @throws {ManagedHub.error.NoSubscription}
 		 *             if no such subscription is found
 		 */
 		unsubscribe : function(subscriptionID, onComplete, scope) {
 			this._assertConn();
 			if (!subscriptionID) {
-				throw new Error(OpenAjax.hub.Error.BadParameters);
+				throw new Error(ManagedHub.error.BadParameters);
 			}
 			this._unsubscribe(subscriptionID);
 			this._invokeOnUnsubscribe(null, subscriptionID);
@@ -522,7 +522,7 @@
 		/**
 		 * Returns true if disconnect() has NOT been called on this ManagedHub,
 		 * else returns false
-		 * 
+		 *
 		 * @returns Boolean
 		 * @type {Boolean}
 		 */
@@ -533,10 +533,10 @@
 		/**
 		 * Returns the scope associated with this Hub instance and which will be
 		 * used with callback functions.
-		 * 
+		 *
 		 * This function can be called even if the Hub is not in a CONNECTED
 		 * state.
-		 * 
+		 *
 		 * @returns scope object
 		 * @type {Object}
 		 */
@@ -547,16 +547,16 @@
 		/**
 		 * Returns the subscriberData parameter that was provided when
 		 * Hub.subscribe was called.
-		 * 
+		 *
 		 * @param subscriberID
 		 *            The subscriberID of a subscription
-		 * 
+		 *
 		 * @returns subscriberData
 		 * @type {*}
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
-		 * @throws {OpenAjax.hub.Error.NoSubscription}
+		 * @throws {ManagedHub.error.NoSubscription}
 		 *             if there is no such subscription
 		 */
 		getSubscriberData : function(subscriberID) {
@@ -566,23 +566,23 @@
 			var sub = this._getSubscriptionObject(this._subscriptions, path, 0, sid);
 			if (sub)
 				return sub.data;
-			throw new Error(OpenAjax.hub.Error.NoSubscription);
+			throw new Error(ManagedHub.error.NoSubscription);
 		},
 
 		/**
 		 * Returns the scope associated with a specified subscription. This
 		 * scope will be used when invoking the 'onData' callback supplied to
 		 * Hub.subscribe().
-		 * 
+		 *
 		 * @param subscriberID
 		 *            The subscriberID of a subscription
-		 * 
+		 *
 		 * @returns scope
 		 * @type {*}
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *
+		 * @throws {ManagedHub.error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
-		 * @throws {OpenAjax.hub.Error.NoSubscription}
+		 * @throws {ManagedHub.error.NoSubscription}
 		 *             if there is no such subscription
 		 */
 		getSubscriberScope : function(subscriberID) {
@@ -592,14 +592,14 @@
 			var sub = this._getSubscriptionObject(this._subscriptions, path, 0, sid);
 			if (sub)
 				return sub.scope;
-			throw new Error(OpenAjax.hub.Error.NoSubscription);
+			throw new Error(ManagedHub.error.NoSubscription);
 		},
 
 		/**
 		 * Returns the params object associated with this Hub instance. Allows
 		 * mix-in code to access parameters passed into constructor that created
 		 * this Hub instance.
-		 * 
+		 *
 		 * @returns params the params object associated with this Hub instance
 		 * @type {Object}
 		 */
@@ -613,7 +613,7 @@
 		 * Send a message to a container's client. This is an OAH subscriber's
 		 * data callback. It is private to ManagedHub and serves as an adapter
 		 * between the OAH 1.0 API and Container.sendToClient.
-		 * 
+		 *
 		 * @param {String}
 		 *            topic Topic on which data was published
 		 * @param {Object}
@@ -636,29 +636,29 @@
 
 		_assertConn : function() {
 			if (!this.isConnected()) {
-				throw new Error(OpenAjax.hub.Error.Disconnected);
+				throw new Error(ManagedHub.error.Disconnected);
 			}
 		},
 
 		_assertPubTopic : function(topic) {
 			if (!topic || topic === "" || (topic.indexOf("*") != -1) || (topic.indexOf("..") != -1) || (topic.charAt(0) == ".") || (topic.charAt(topic.length - 1) == ".")) {
-				throw new Error(OpenAjax.hub.Error.BadParameters);
+				throw new Error(ManagedHub.error.BadParameters);
 			}
 		},
 
 		_assertSubTopic : function(topic) {
 			if (!topic) {
-				throw new Error(OpenAjax.hub.Error.BadParameters);
+				throw new Error(ManagedHub.error.BadParameters);
 			}
 			var path = topic.split(".");
 			var len = path.length;
 			for (var i = 0; i < len; i++) {
 				var p = path[i];
 				if ((p === "") || ((p.indexOf("*") != -1) && (p != "*") && (p != "**"))) {
-					throw new Error(OpenAjax.hub.Error.BadParameters);
+					throw new Error(ManagedHub.error.BadParameters);
 				}
 				if ((p == "**") && (i < len - 1)) {
-					throw new Error(OpenAjax.hub.Error.BadParameters);
+					throw new Error(ManagedHub.error.BadParameters);
 				}
 			}
 		},
@@ -807,7 +807,7 @@
 			var path = subscriptionID.split(".");
 			var sid = path.pop();
 			if (!this._recursiveUnsubscribe(this._subscriptions, path, 0, sid)) {
-				throw new Error(OpenAjax.hub.Error.NoSubscription);
+				throw new Error(ManagedHub.error.NoSubscription);
 			}
 		},
 

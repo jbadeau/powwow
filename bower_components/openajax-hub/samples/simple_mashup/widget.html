@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Widget</title>
+  
+  <style>
+    textarea {
+      width:270px;
+      height: 100px;
+    }
+  </style>
+    
+  <script type="text/javascript">
+    if ( typeof window.console === "undefined" ) {
+        try {
+          window.console = parent.console;
+        } catch(e) {
+            window.console = {
+                log: function( msg ) {
+                    try {
+                        document.getElementById( "messages" ).value += "--- " + msg + "\n";
+                    } catch(e) {}
+                }
+            };
+        }
+    }
+  </script>
+
+  <script type="text/javascript" src="/hub20/src/OpenAjax-mashup.js"></script>
+
+  <script type="text/javascript" src="/hub20/src/containers/iframe/crypto.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/iframe.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/json2.js"></script>
+
+    <!-- RPC -->
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc-dependencies.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/fe.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/ifpc.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rmr.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/wpm.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc.js"></script>
+
+  <!-- Actual Application -->
+  <script type="text/javascript">
+
+    var hubClient = null;
+    
+    function init()
+    {
+      hubClient = new OpenAjax.hub.IframeHubClient({
+            HubClient: {
+                onSecurityAlert: onHubClientSecurityAlert,
+                log: console.log
+            }
+      });
+      hubClient.connect( onHubClientConnect );
+    }
+
+    // called when connection with mashup parent has been established
+    function onHubClientConnect( client, success, error ) {
+        console.log( "(IFRAME CLIENT): " + (success ? "" : "NOT ") + "connected" );
+        if ( !success ) {
+            console.log( "!! failed to connect: " + error );
+            return;
+        }
+
+        // widget is now ready
+        
+        // listen for event
+        var subHandle = hubClient.subscribe( "topic1",
+                function( topic, data, subscriberData ) { /*onData*/
+                  document.getElementById( "messages" ).value += data + "\n";
+                },
+                null /* scope */,
+                function( subscriberID, success, error ) { /*onComplete*/
+                  if ( ! success ) {
+                    alert( "subscribe to topic1 failed for [" + hubClient.getClientID() + "]" );
+                    return;
+                  }
+                }
+        );
+    }
+
+    function onHubClientSecurityAlert( source, alertType ) {
+        alert( "!! security alert from " + source.getClientID() + ": " + alertType );
+    }
+
+    function doAction( e, action )
+    {
+        try {
+            switch( action ) {
+                case "connect":
+                    hubClient.connect( onHubClientConnect );
+                    break;
+            
+                case "disconnect":
+                    hubClient.disconnect( function( item, success, error ) {
+                        if ( ! success ) {
+                            console.log( "!! failed to disconnect: " + error );
+                        }
+                    });
+                    break;
+            }
+        } catch( e ) {
+            console.log( "!!! thrown exception: " + e );
+        }
+
+        if ( e.stopPropagation ) e.stopPropagation();
+        e.cancelBubble = true;
+        return false;
+    }
+    
+  </script>
+</head>
+<body onload="init();" style="background-color: #ddd;">
+
+<h3>Iframe Widget</h3>
+<form>
+    <button id="connectButton" onclick="return doAction(event,'connect');">connect</button>
+    <button id="disconnectButton" onclick="return doAction(event,'disconnect');">disconnect</button>
+    <br>
+    received messages:<br>
+    <textarea id="messages" readonly="readonly" wrap="off"></textarea>
+</form>
+  
+</body>
+</html>

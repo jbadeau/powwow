@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<!--
+    This sample assumes that it is run from
+    http://mashup.foo.bar.com/hub20/samples/redirection/mashup.html.
+-->
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Mashup demo</title>
+
+    <!-- OpenAjax scripts -->
+<!--    <script src="/hub20/src/OpenAjax.js"></script>-->
+    <script src="/hub20/src/OpenAjax-mashup.js"></script>
+
+    <!-- iframe container -->
+    <script src="/hub20/src/containers/iframe/json2.js"></script>
+    <script src="/hub20/src/containers/iframe/crypto.js"></script>
+    <script src="/hub20/src/containers/iframe/iframe.js"></script>
+    <script src="/hub20/src/containers/iframe/FIM.js"></script>
+
+    <!-- Actual Application -->
+    <script type="text/javascript">
+
+        var hub = null;
+        
+        var log = function() {};
+        if ( typeof console != "undefined" ) {
+            log = function( msg ) {
+                console.log( msg );
+            }
+        }
+        
+        function init()
+        {
+            function publishMgr( topic, data, pubClient, subClient ) {
+                var pubClientID = pubClient ? pubClient.getClientID() : "manager";
+                var subClientID = subClient ? subClient.getClientID() : "manager";
+                log( "(MANAGER): PUB: " + pubClientID + " -> " + subClientID + " || topic: '" + topic + "' data: '" + data + "'" );
+                return true;
+            }
+
+            function subscribeMgr( topic, client ) {
+                log( "(MANAGER): SUB: id: '" + client.getClientID() + "' topic: '" + topic + "'" );
+                return true;
+            }
+
+            hub = new OpenAjax.hub.ManagedHub({
+                onPublish: publishMgr,
+                onSubscribe: subscribeMgr
+            });
+
+            ////////////////////////////////////////////////////////////////////
+
+            function onClientConnect( container ) {
+                log( "++ " + container.getClientID() + " connected" );
+            }
+            function onClientDisconnect( container ) {
+                log( "-- " + container.getClientID() + " disconnected" );
+            }
+            function onClientSecurityAlert( container, securityAlert ) {
+                log( "!! security alert - id: '" + container.getClientID() + "' msg: '" + securityAlert + "'");
+            }
+
+            // load widget
+            var widgetDIV = document.getElementById( "widget" );
+
+            var widget = document.createElement( "div" );
+            widget.style.border = "1px solid black";
+            widget.innerHTML = "<b> widget </b><br>";
+            widgetDIV.appendChild( widget );
+            
+            var client = new OpenAjax.hub.IframeContainer( hub, "widget",
+                {   Container: {
+                        onConnect: onClientConnect,
+                        onDisconnect: onClientDisconnect,
+                        onSecurityAlert: onClientSecurityAlert,
+                        log: log
+                    },
+                    IframeContainer: {
+                        parent: widget,
+                        uri: "http://c0.foo.bar.com/hub20/samples/redirection/widget.html",
+                        tunnelURI: "http://mashup.foo.bar.com/hub20/src/containers/iframe/tunnel.html"
+                    }
+                });
+        }
+        
+        function sendMessage(e)
+        {
+            var msg = document.getElementById("mgr_output").value;
+            hub.publish( "topic1", msg );
+
+            if ( e.stopPropagation ) e.stopPropagation();
+            e.cancelBubble = true;
+            return false;
+        }
+
+    </script>
+
+    <style type="text/css">
+        body {
+          padding: 5px;
+        }
+        div {
+          padding: 5px;
+          margin: 10px;
+        }
+        textarea {
+          width:270px;
+          height: 100px;
+        }
+        #sender {
+          float: left;
+        }
+        #widget {
+          float: left;
+        }
+    </style>
+</head>
+
+<body onload="init();">
+  
+<div id="sender">
+  <div id="manager" style="border: 1px dotted black">
+    <b> manager app </b><br><br>
+    <form>
+      <input id="mgr_output" value="message from manager" type="text"/>
+      <button id="sendButton" onclick="return sendMessage(event);">send</button>
+    </form>
+  </div>
+</div>
+
+<div id="widget">
+</div>
+  
+</body>
+</html>

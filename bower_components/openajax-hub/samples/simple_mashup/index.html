@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<!--
+    This sample assumes that it is run from
+    http://mashup.foo.bar.com/hub20/samples/simple_mashup/index.html.
+-->
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Frame Client</title>
+    
+    <!-- <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js" djConfig="isDebug:true"></script> -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"></script>
+
+<!--
+    <script type="text/javascript" src="https://getfirebug.com/firebug-lite.js">
+        {
+            saveCookies: true,
+            overrideConsole: false
+        }
+    </script>
+-->
+    
+    <!-- OpenAjax scripts -->
+    <script type="text/javascript" src="/hub20/src/OpenAjax-mashup.js"></script>
+
+    <!-- containers -->
+    <script type="text/javascript" src="/hub20/src/containers/inline/inline.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/crypto.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/iframe.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/json2.js"></script>
+
+    <!-- RPC -->
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc-dependencies.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/fe.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/ifpc.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rmr.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/wpm.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc.js"></script>
+    
+    <!-- Actual Application -->
+    <script type="text/javascript">
+
+        var hub;
+        var inlineContainer;
+        var iframeContainer;
+
+        dojo.addOnLoad( function()
+        {
+            function publishMgr( topic, data, pubClient, subClient ) {
+                var pubClientID = pubClient ? pubClient.getClientID() : "manager";
+                var subClientID = subClient ? subClient.getClientID() : "manager";
+                console.log( "(MANAGER): PUB: " + pubClientID + " -> " + subClientID + " || topic: '" + topic + "' data: '" + data + "'" );
+                return true;
+            }
+
+            function subscribeMgr( topic, client ) {
+                var clientID = client ? client.getClientID() : "manager";
+                console.log( "(MANAGER): SUB: id: '" + clientID + "' topic: '" + topic + "'" );
+                return true;
+            }
+            
+            function unsubscribeMgr( topic, client ) {
+                var clientID = client ? client.getClientID() : "manager";
+                console.log( "(MANAGER): UNSUB: id: '" + clientID + "' topic: '" + topic + "'" );
+            }
+
+            hub = new OpenAjax.hub.ManagedHub({
+                onPublish: publishMgr,
+                onSubscribe: subscribeMgr,
+                onUnsubscribe: unsubscribeMgr
+            });
+
+            ////////////////////////////////////////////////////////////////////
+
+            function onClientConnect( container ) {
+                console.log( "++ " + container.getClientID() + " connected" );
+            }
+            function onClientDisconnect( container ) {
+                console.log( "-- " + container.getClientID() + " disconnected" );
+//if ( container == iframeContainer ) {
+//    setTimeout( function() {
+//        console.log( "removing iframeContainer" );
+//        hub.removeContainer( iframeContainer );
+//        iframeContainer = null;
+//        var ifr = document.getElementById( "iframe_widget" );
+//        ifr.parentNode.removeChild( ifr );
+//    }, 0 );
+//}
+            }
+            function onClientSecurityAlert( container, securityAlert ) {
+                var msg = "!! security alert - id: '" + container.getClientID() + "' msg: '" + securityAlert + "'";
+                console.log( msg );
+                alert( msg );
+            }
+            function logger( msg ) {
+                console.log( msg );
+            }
+            
+            inlineContainer = new OpenAjax.hub.InlineContainer( hub, "inline_widget",
+                {   Container: {
+                        onConnect: onClientConnect,
+                        onDisconnect: onClientDisconnect,
+                        onSecurityAlert: onClientSecurityAlert,
+                        log: logger
+                    }
+                }
+            );
+            
+            var tunnel = null,
+                channel = OpenAjax.gadgets.rpc.getRelayChannel();
+            if ( channel === 'wpm' || channel === 'ifpc' ) {
+                tunnel = "http://mashup.foo.bar.com/hub20/src/containers/iframe/rpc/rpc_relay.html";
+            } else {
+                console.log("WARNING: using less secure message transport '" + channel + "' (older browser)");
+            }
+            iframeContainer = new OpenAjax.hub.IframeContainer( hub, "iframe_widget",
+                {   Container: {
+                        onConnect: onClientConnect,
+                        onDisconnect: onClientDisconnect,
+                        onSecurityAlert: onClientSecurityAlert,
+                        log: logger
+                    },
+                    IframeContainer: {
+                        uri: "http://c0.foo.bar.com/hub20/samples/simple_mashup/widget.html",
+                        clientRelay: "http://c0.foo.bar.com/hub20/src/containers/iframe/rpc/rpc_relay.html",
+                        tunnelURI: tunnel,
+                        parent: document.getElementById( "iframe_widget_div" ),
+                        iframeAttrs: {
+                                className: "iframe_container",
+                                frameBorder: "0" },
+                        timeout: 10000
+                    }
+                }
+            );
+            
+            ////////////////////////////////////////////////////////////////////
+            
+            hub.subscribe( "topic1",
+                function( topic, data, subscriberData ) { /*onData*/
+                  document.getElementById( "mgr_input" ).value += data + "\n";
+                },
+                null /*scope*/,
+                function( subscriptionID, success, error ) { /*onComplete*/
+                    if ( ! success ) {
+                        console.log( "!! error - id: 'manager' msg: '" + error + "'" );
+                    }
+                }
+            );
+        });
+
+        function doSomething( e, action )
+        {
+            try {
+                switch( action ) {
+                    case "remove_inline_container":
+                        hub.removeContainer( inlineContainer );
+                        break;
+
+                    case "remove_iframe_container":
+                        hub.removeContainer( iframeContainer );
+                        break;
+                
+                    case "remove_iframe":
+                        var ifr = iframeContainer.getIframe();
+                        ifr.parentNode.removeChild( ifr );
+                        break;
+                
+                    case "nav_iframe":
+                        iframeContainer.getIframe().src = "http://www.openajax.org";
+                        break;
+                
+                    case "send_msg":
+                        var msg = document.getElementById("mgr_output").value;
+                        hub.publish( "topic1", msg );
+                        break;
+                }
+            } catch( e ) {
+                console.log( "!!! thrown exception (1): " + e );
+            }
+
+            if ( e.stopPropagation ) {
+                e.stopPropagation();
+            }
+            e.cancelBubble = true;
+            return false;
+        }
+
+    </script>
+
+    <style type="text/css">
+        body {
+          padding: 5px;
+        }
+        div {
+          padding: 5px;
+          margin: 10px;
+        }
+        textarea {
+          width:270px;
+          height: 100px;
+        }
+        #manager {
+          float: left;
+        }
+        .widget {
+          float: left;
+          border: 1px solid black;
+          width: 300px;
+          height: 300px;
+        }
+        #inline_widget {
+            background-color: #ddd;
+        }
+        .iframe_container {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+  
+<div id="manager" style="border: 1px dotted black">
+    <b> manager control </b><br><br>
+    <form>
+        <input id="mgr_output" value="message from manager" type="text"/>
+        <button id="sendButton" onclick="return doSomething(event,'send_msg');">send</button>
+        <br><br>
+        received messages:<br>
+        <textarea id="mgr_input" readonly="readonly"></textarea>
+        <br><br>
+        <button id="removeInlineCtnButton" onclick="return doSomething(event,'remove_inline_container');">remove inline container</button>
+        <br>
+        <button id="removeIframeCtnButton" onclick="return doSomething(event,'remove_iframe_container');">remove iframe container</button>
+        <br>
+        <button id="removeIframeButton" onclick="return doSomething(event,'remove_iframe');">remove iframe</button>
+        <br>
+        <button id="navIframeButton" onclick="return doSomething(event,'nav_iframe');">navigate iframe to google.com</button>
+    </form>
+</div>
+
+<div id="widgets">
+    <div id="inline_widget" class="widget">
+        <script>
+            var inlineHubClient;
+            
+            dojo.addOnLoad( function() {
+                inlineHubClient = new OpenAjax.hub.InlineHubClient({
+                        HubClient: {
+                            onSecurityAlert: onInlineHubClientSecurityAlert
+                        },
+                        InlineHubClient: {
+                            container: inlineContainer
+                        }
+                });
+                inlineHubClient.connect( onInlineHubClientConnect );
+            });
+
+            // called when connection with mashup parent has been established
+            function onInlineHubClientConnect( client, success, error ) {
+                console.log( "(INLINE CLIENT): " + (success ? "" : "NOT ") + "connected" );
+                if ( !success ) {
+                    console.log( "!! failed to connect: " + error );
+                    return;
+                }
+
+              // widget is now ready
+
+              // listen for event
+              var subHandle = inlineHubClient.subscribe( "topic1",
+                      function( topic, data, subscriberData ) { /*onData*/
+                        document.getElementById( "messages" ).value += data + "\n";
+                      },
+                      null /* scope */,
+                      function( subscriberID, success, error ) { /*onComplete*/
+                        if ( ! success ) {
+                          alert( "subscribe to topic1 failed for INLINE CLIENT" );
+                          return;
+                        }
+                      }
+              );
+            }
+
+            function onInlineHubClientSecurityAlert( source, alertType ) {
+                alert( "!! security alert from " + source.getClientID() + ": " + alertType );
+            }
+
+            function doAction( e, action )
+            {
+                try {
+                    switch( action ) {
+                        case "connect":
+                            inlineHubClient.connect( onInlineHubClientConnect );
+                            break;
+
+                        case "disconnect":
+                            inlineHubClient.disconnect( function( item, success, error ) {
+                                if ( ! success ) {
+                                    console.log( "!! failed to disconnect: " + error );
+                                }
+                            });
+                            break;
+                    }
+                } catch( e ) {
+                    console.log( "!!! thrown exception (2): " + e );
+                }
+                
+                if ( e.stopPropagation ) e.stopPropagation();
+                e.cancelBubble = true;
+                return false;
+            }
+        </script>
+        <h3>Inline Widget</h3>
+        <form>
+            <button id="connectButton" onclick="return doAction(event,'connect');">connect</button>
+            <button id="disconnectButton" onclick="return doAction(event,'disconnect');">disconnect</button>
+            <br>
+            received messages:<br>
+            <textarea id="messages" readonly="readonly"></textarea>
+        </form>
+    </div>
+    <div id="iframe_widget_div" class="widget"></div>
+</div>
+  
+</body>
+</html>

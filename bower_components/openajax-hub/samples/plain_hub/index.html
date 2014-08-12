@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<!--
+    This sample assumes that it is run from
+    http://mashup.foo.bar.com/hub20/samples/plain_hub/mashup.html.
+-->
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Mashup demo</title>
+    
+    <script type="text/javascript" src="https://getfirebug.com/firebug-lite.js#overrideConsole=false"></script>
+    
+    <!-- OpenAjax scripts -->
+    <script type="text/javascript" src="/hub20/src/OpenAjax-mashup.js"></script>
+
+    <!-- containers -->
+    <script type="text/javascript" src="/hub20/src/containers/inline/inline.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/crypto.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/iframe.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/json2.js"></script>
+
+    <!-- RPC -->
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc-dependencies.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/fe.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/ifpc.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rmr.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/wpm.transport.js"></script>
+    <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc.js"></script>
+    
+    <!-- Actual Application -->
+    <script type="text/javascript">
+
+        var hub = null;
+        
+        var log = function() {};
+        if ( typeof console != "undefined" ) {
+            log = function( msg ) {
+                console.log( msg );
+            };
+        }
+        
+        function init()
+        {
+            function publishMgr( topic, data, pubClient, subClient ) {
+                var pubClientID = pubClient ? pubClient.getClientID() : "manager";
+                var subClientID = subClient ? subClient.getClientID() : "manager";
+                
+                // The mashup policy:
+                //   'widget AA' can publish to all
+                //   'widget BB' can only publich to 'widget YY'
+                //   'manager' hears everything
+                var doAllow = true;
+                if ( pubClientID == "widget BB" ) {
+                  if ( subClientID != "widget YY" && subClientID != "manager" ) {
+                    doAllow = false;
+                  }
+                }
+
+                log( "(MANAGER): PUB" +
+                    (doAllow ? "" : " DECLINED") +
+                    ": " + pubClientID + " -> " + subClientID + " || topic: '" + topic + "' data: '" + data + "'" );
+                return doAllow;
+            }
+
+            function subscribeMgr( topic, client ) {
+                var clientID = client ? client.getClientID() : "manager";
+                log( "(MANAGER): SUB: id: '" + clientID + "' topic: '" + topic + "'" );
+                return true;
+            }
+
+            hub = new OpenAjax.hub.ManagedHub({
+                onPublish: publishMgr,
+                onSubscribe: subscribeMgr
+            });
+
+            ////////////////////////////////////////////////////////////////////
+
+            function onClientConnect( container ) {
+                log( "++ " + container.getClientID() + " connected" );
+            }
+            function onClientDisconnect( container ) {
+                log( "-- " + container.getClientID() + " disconnected" );
+            }
+            function onClientSecurityAlert( container, securityAlert ) {
+                log( "!! security alert - id: '" + container.getClientID() + "' msg: '" + securityAlert + "'");
+                if ( container.getClientID() == "widget AA" ) {
+                    alert( "FramePhish alert - widget AA" );
+                }
+            }
+            
+            var iframeAttrs = {
+                    className: "iframe_container",
+                    frameBorder: "0"
+            };
+            
+            // load senders
+            var senders = document.getElementById( "senders" );
+            var s = [
+                "widget AA",
+                "widget BB"
+            ];
+            for ( var i = 0; i < s.length; i++ ) {
+                var widget = document.createElement( "div" );
+                widget.className = "widget";
+                widget.innerHTML = "<b>" + s[i] + "</b><br>";
+                senders.appendChild( widget );
+                
+                var client = new OpenAjax.hub.IframeContainer( hub, s[i],
+                    {   Container: {
+                            onConnect: onClientConnect,
+                            onDisconnect: onClientDisconnect,
+                            onSecurityAlert: onClientSecurityAlert,
+                            log: log
+                        },
+                        IframeContainer: {
+                            uri: "http://c" + i + ".foo.bar.com/hub20/samples/plain_hub/widgetSender.html",
+                            clientRelay: "http://c" + i + ".foo.bar.com/hub20/src/containers/iframe/rpc/rpc_relay.html",
+                            tunnelURI: "http://mashup.foo.bar.com/hub20/src/containers/iframe/rpc/rpc_relay.html",
+                            parent: widget,
+                            iframeAttrs: iframeAttrs
+                        }
+                    });
+            }
+
+            // load receivers
+            var receivers = document.getElementById( "receivers" );
+            var r = [
+                "widget XX",
+                "widget YY",
+                "widget ZZ"
+            ];
+            for ( var i = 0; i < r.length; i++ ) {
+                var widget = document.createElement( "div" );
+                widget.className = "widget";
+                widget.innerHTML = "<b>" + r[i] + "</b><br>";
+                receivers.appendChild( widget );
+                
+                var client = new OpenAjax.hub.IframeContainer( hub, r[i],
+                    {   Container: {
+                            onConnect: onClientConnect,
+                            onDisconnect: onClientDisconnect,
+                            onSecurityAlert: onClientSecurityAlert,
+                            log: log
+                        },
+                        IframeContainer: {
+                            uri: "http://c" + (i+3) + ".foo.bar.com/hub20/samples/plain_hub/widgetReceiver.html",
+                            clientRelay: "http://c" + (i+3) + ".foo.bar.com/hub20/src/containers/iframe/rpc/rpc_relay.html",
+                            tunnelURI: "http://mashup.foo.bar.com/hub20/src/containers/iframe/rpc/rpc_relay.html",
+                            parent: widget,
+                            iframeAttrs: iframeAttrs
+                        }
+                    });
+            }
+            
+            ////////////////////////////////////////////////////////////////////
+            
+            hub.subscribe( "topic1",
+                function( topic, data, subscriberData ) { /*onData*/
+                  document.getElementById( "mgr_input" ).value += data + "\n";
+                },
+                null /*scope*/,
+                function( subscriptionID, success, error ) { /*onComplete*/
+                    if ( ! success ) {
+                        log( "!! error - id: 'manager' msg: '" + error + "'" );
+                    }
+                }
+            );
+        }
+
+        function sendMessage(e)
+        {
+            var msg = document.getElementById("mgr_output").value;
+            hub.publish( "topic1", msg );
+
+            if ( e.stopPropagation ) e.stopPropagation();
+            e.cancelBubble = true;
+            return false;
+        }
+
+    </script>
+
+    <style type="text/css">
+        body {
+          padding: 5px;
+        }
+        div {
+          padding: 5px;
+          margin: 10px;
+        }
+        textarea {
+          width:270px;
+          height: 100px;
+        }
+        #senders {
+          float: left;
+        }
+        #receivers {
+          float: left;
+        }
+        .widget {
+            border: 1px solid black;
+            width: 300px;
+            height: 175px;
+        }
+        .iframe_container {
+            width: 300px;
+            height: 150px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body onload="init();">
+  
+<p> <b>Widget AA</b> broadcasts on <i>topic1</i> to widgets <b>XX</b>, <b>YY</b> and <b>ZZ</b>.
+<p> <b>Widget BB</b> also publishes on <i>topic1</i>, but the mashup defines a point-to-point
+  communication with <b>widget YY</b>. (See method <i>publishManager</i>)
+<p> <b>Manager control</b> is not a widget -- it shows how the app can also subscribe and publish
+  to events.
+
+<div id="senders">
+  <div id="manager" style="border: 1px dotted black">
+    <b> manager control </b><br><br>
+    <form>
+      <input id="mgr_output" value="message from manager" type="text"/>
+      <button id="sendButton" onclick="return sendMessage(event);">send</button>
+      <br><br>
+      received messages:<br>
+      <textarea id="mgr_input" readonly="readonly"></textarea>
+    </form>
+  </div>
+</div>
+
+<div id="receivers">
+</div>
+  
+</body>
+</html>

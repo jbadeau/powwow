@@ -1,0 +1,63 @@
+<!--
+/*
+
+        Copyright 2006-2009 OpenAjax Alliance
+
+        Licensed under the Apache License, Version 2.0 (the "License"); 
+        you may not use this file except in compliance with the License. 
+        You may obtain a copy of the License at
+        
+                http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software 
+        distributed under the License is distributed on an "AS IS" BASIS, 
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+        See the License for the specific language governing permissions and 
+        limitations under the License.
+*/
+-->
+<html>
+<head>
+  <title>ClientApp2 </title>
+
+  <!-- Load the OpenAjax Hub. This example uses the "release/all" configuration -->
+  <script src="/hub20/release/all/OpenAjaxManagedHub-all.js"></script>
+  <script type="text/javascript">
+    function client2SecurityAlertHandler(source, alertType) {
+      // Handle security alerts
+    }
+
+    /* Callback that is invoked upon successful connection to the Managed Hub */
+    function connectCompleted ( hubClient, success, error ) {
+      if (success) {
+        /* Call hubClient.publish(...) to publish messages  */
+        /* Call hubClient.subscribe(...) to subscribe to message topics */
+      }
+    }
+
+    /* Application initializes in response to document load event */
+    function loadEventHandler() {
+      hubClient = new OpenAjax.hub.IframeHubClient({
+        HubClient: {
+          onSecurityAlert: client2SecurityAlertHandler
+        }
+      });
+
+      // Connect to the ManagedHub
+      hubClient.connect( connectCompleted );
+    }
+
+    function clickEvent() {
+      hubClient.publish('org.example.topics.textmessage','Message from ClientApp2');
+    }
+  </script>
+</head>
+<body onload="loadEventHandler();">
+  <div style="border:black">
+    <h3>ClientApp2 content</h3>
+	<p>
+	  <input type="button" value="Click to send message" onclick="clickEvent()"/>
+	</p>
+  </div>
+</body>
+</html>

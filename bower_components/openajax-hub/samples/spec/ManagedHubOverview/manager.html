@@ -1,0 +1,168 @@
+<!-- 
+Copyright 2006-2009 OpenAjax Alliance
+
+Licensed under the Apache License, Version 2.0 (the "License"); 
+you may not use this file except in compliance with the License. 
+You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software 
+distributed under the License is distributed on an "AS IS" BASIS, 
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+See the License for the specific language governing permissions and 
+limitations under the License.
+
+This sample application provides a sample application that illustrates concepts
+from the Managed Hub Overview chapter of the OpenAjax Hub 2.0 specification:
+
+http://www.openajax.org/member/wiki/OpenAjax_Hub_2.0_Specification_Managed_Hub_Overview
+
+To run this application, you must set up your computer and Web server as follows:
+(1) Set up you /etc/hosts file (or equivalent) and virtual hosts so that domains 
+	http://mashup.foo.bar.com and http://c0.foo.bar.com are mapped to localhost
+	(i.e., 127.0.0.1).
+(2) Install the open source reference implementation at http://localhost/hub20 
+	such that the samples/ directory can be reached as http://localhost/hub20/samples.
+You can then run this sample as:
+	http://mashup.foo.bar.com/hub20/samples/spec/ManagedHubOverview/manager.html
+
+**** NOTE: WILL NOT WORK if you launch this sample as: ****
+    http://localhost/....
+
+-->
+
+<html>
+<head>
+  <title>Manager Application</title>
+
+  <!-- 
+    Load the OpenAjax Hub before loading other Ajax libraries. 
+    This example uses the "release/all" configuration of the Hub.
+  -->
+  <script src="../../../release/all/OpenAjaxManagedHub-all.js"></script>
+
+  <!-- 
+    Next, load any other non-OpenAjax JavaScript libaries that you need: 
+  -->
+  <script src="xhr.js"></script> 
+  
+  <!-- 
+    Begin application JavaScript:
+  -->
+  <script type="text/javascript">
+
+    /* 
+     * Security Manager Callbacks 
+     */
+
+    function onMHPublish(topic, data, publishContainer, subscribeContainer) {
+      /* Callback for publish requests. This example approves all publish requests. */
+      return true;
+    }
+    function onMHSubscribe(topic, container) {
+      /* Callback for subscribe requests. This example approves all subscribe requests. */ 
+      return true;
+    }
+    function onMHUnsubscribe(topic, container) {
+      /* Callback for unsubscribe requests. This example approves all subscribe requests. */ 
+      return true;
+    }
+    function onMHSecurityAlert(source, alertType) {  /* Callback for security alerts */  }
+
+    /* Application initializes in response to document load event */
+
+    function loadEventHandler() {
+      var mashupArea = document.getElementById("mashupArea");
+
+      /* 
+       * Create a Managed Hub instance 
+       */
+
+      var managedHub = new OpenAjax.hub.ManagedHub(
+            { 
+              onPublish:       onMHPublish,
+              onSubscribe:     onMHSubscribe,
+              onUnsubscribe:   onMHUnsubscribe,
+              onSecurityAlert: onMHSecurityAlert 
+            }
+      );
+
+      /* 
+       * Create an InlineHubClient and InlineContainer for client1
+       */
+
+      function onClientSecurityAlert(source, alertType) {  /* Handle client-side security alerts */  }
+      function onClientConnect(container) {        /* Called when client connects */   }
+      function onClientDisconnect(container) {     /* Called when client disconnects */ }
+
+      /* Create an InlineContainer for this HubClient */
+
+      window.container1 = new OpenAjax.hub.InlineContainer(managedHub , "client1",
+        {
+          Container: {
+            onSecurityAlert: onClientSecurityAlert,
+            onConnect:       onClientConnect,
+            onDisconnect:    onClientDisconnect
+          }
+        }
+      );
+
+      var div1 = document.createElement( "div" );
+      xhrGet("ClientApp1.html", function(responseText) { 
+        div1.innerHTML = responseText;
+        // Dynamically loaded SCRIPT elements don't execute.
+        // The following example logic finds SCRIPT elements, extracts JS content, and executes it.
+        responseText.replace(/<script\s*(?:[^>]*?(?:src=(['"]?)([^>]*?)\1[^>]*)?)*>([\s\S]*?)<\/script>/gi, 
+          function(ignore, delim, src, code){
+            (new Function(code)).call(window);
+          }
+        );
+      }, function(e) {
+        alert('XMLHttpRequest failed');
+      });
+      mashupArea.appendChild(div1);
+
+      /* 
+       * Create an IframeContainer for client2
+       */
+
+      /*  
+       * NOTE: If we wish to completely isolate ClientApp2 from the manager
+       * and from all other client applications, the uri parameter container2
+       * must have a different subdomain from the main application and all other
+       * client applications. In this case, the main application has a URL
+       * http://mashup.foo.bar.com/something, and we set client2's URI to
+       * c0.foo.bar.com
+       */
+
+      var subdomain2 = "c0.foo.bar.com";
+      var div2 = document.createElement( "div" );
+      mashupArea.appendChild(div2);
+      var container2 = new OpenAjax.hub.IframeContainer(managedHub , "client2",
+        {
+          Container: {
+            onSecurityAlert: onClientSecurityAlert,
+            onConnect:       onClientConnect,
+            onDisconnect:    onClientDisconnect
+          },
+          IframeContainer: {
+            // DOM element that is parent of this container:
+            parent:      div2, 
+            // Container's iframe will have these CSS styles:
+            iframeAttrs: { style: { border:"black solid 1px" }},
+            // Container's iframe loads the following URL:
+            uri: "http://" + subdomain2 + "/hub20/samples/spec/ManagedHubOverview/ClientApp2.html",
+            // Tunnel URL required by IframeHubClient. This particular tunnel URL 
+            // is the one that corresponds to release/all/OpenAjaxManagedHub-all.js:
+            tunnelURI:  "http://mashup.foo.bar.com/hub20/release/all/tunnel.html"
+          }
+        }
+      );
+    }
+  </script>
+  <body onload="loadEventHandler()">
+    <div id="mashupArea"></div>
+  </body>
+</html>
+

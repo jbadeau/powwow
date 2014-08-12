@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>receiver</title>
+  
+  <!-- OpenAjax scripts -->
+  <script type="text/javascript" src="/hub20/src/OpenAjax-mashup.js"></script>
+
+  <!-- containers -->
+  <script type="text/javascript" src="/hub20/src/containers/inline/inline.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/crypto.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/iframe.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/json2.js"></script>
+
+  <!-- RPC -->
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc-dependencies.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/fe.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/ifpc.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/nix.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rmr.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/wpm.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc.js"></script>
+
+  <!-- Actual Application -->
+  <script type="text/javascript">
+    
+    if ( typeof console === 'undefined' ) {
+        console = {
+            log: function() {}
+        }
+    }
+  
+    function init()
+    {
+        initWidget();
+    }
+
+    //--------------------------------------------------------------------------
+
+    var hubClient = null;
+    var subHandle = null;
+
+    function initWidget()
+    {
+        // establish connection to parent
+        hubClient = new OpenAjax.hub.IframeHubClient({
+                HubClient: {
+                    onSecurityAlert: onHubClientSecurityAlert,
+                    log: function( msg ) { console.log( msg ); }
+                }
+        });
+        hubClient.connect( onHubClientConnect );
+    }
+
+    // called when connection with mashup parent has been established
+    function onHubClientConnect( client, success, error )
+    {
+        if ( !success ) {
+            alert( "connection failed for " + client.getClientID() );
+            return;
+        }
+        
+        // widget is now ready
+        
+        // listen for event
+        subHandle = hubClient.subscribe( "topic1",
+                function( topic, data, subscriberData ) { /*onData*/
+                    document.getElementById( "messages" ).value += data + "\n";
+                },
+                null /* scope */,
+                function( subscriberID, success, error ) { /*onComplete*/
+                    if ( ! success ) {
+                        alert( "subscribe to topic1 failed for [" + hubClient.getClientID() + "]" );
+                        return;
+                    }
+                }
+        );
+    }
+
+    function onHubClientSecurityAlert( source, alertType )
+    {
+        alert( "security alert from " + source.getClientID() );
+    }
+
+    function sendMessage(e)
+    {
+        var msg = document.getElementById("message").value;
+        hubClient.publish( "topic1", msg );     
+        
+        if ( e.stopPropagation ) e.stopPropagation();
+        e.cancelBubble = true;
+        return false;
+    }
+    
+    function unsubscribe(e)
+    {
+        hubClient.unsubscribe( subHandle,
+                function( subscriberID, success, error ) { /*onComplete*/
+                    if ( ! success ) {
+                        alert( "unsubscribe to topic1 failed for [" + hubClient.getClientID() + "]" );
+                        return;
+                    }
+                }
+        );
+        
+        if ( e.stopPropagation ) e.stopPropagation();
+        e.cancelBubble = true;
+        return false;
+    }
+
+  </script>
+
+  <style>
+    textarea {
+      width:270px;
+      height: 100px;
+    }
+    #theContent {
+      width: 300px;
+      height: 200px;
+    }
+  </style>
+  
+</head>
+<body onload="init();" style="margin: 0px;">
+
+<div id="theContent">
+    <form>
+      <input id="message" value="message from widget" type="text"/>
+      <button id="sendButton" onclick="return sendMessage(event);">send</button>
+      <button id="unsubButton" onclick="return unsubscribe(event);">unsubscribe</button>
+      <br><br>
+      received messages:<br>
+      <textarea id="messages" readonly="readonly"></textarea>
+    </form>
+</div>
+  
+</body>
+</html>

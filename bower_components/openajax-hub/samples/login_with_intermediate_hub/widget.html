@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>receiver</title>
+  
+<!--  <script src="/hub20/src/OpenAjax.js"></script>-->
+  <script src="/hub20/src/OpenAjax-mashup.js"></script>
+
+  <script src="/hub20/src/containers/iframe/json2.js"></script>
+  <script src="/hub20/src/containers/iframe/crypto.js"></script>
+  <script src="/hub20/src/containers/iframe/iframe.js"></script>
+  <script src="/hub20/src/containers/iframe/FIM.js"></script>
+
+  <!-- Actual Application -->
+  <script type="text/javascript">
+    
+    if ( typeof console === 'undefined' ) {
+        console = {
+            log: function() {}
+        }
+    }
+  
+    function init()
+    {
+        if ( queryURLParam("validated") != "true" ) {
+            initIntermediary();
+        } else {
+            initWidget();
+        }
+    }
+
+    function queryURLParam( param )
+    {
+        var re = new RegExp( "[\\?&]" + param + "=([^&#]*)" );
+        try {
+            var match = (re.exec( window.location.search ))[1];
+            return decodeURIComponent( match.replace( /\+/g, "%20" ) );
+        } catch ( e ) { }
+
+        return null;
+    }
+
+    //--------------------------------------------------------------------------
+    
+    var __hubClient = null;
+    var __hub = null;
+    var __widgetContainer = null;
+    var __subs = [];
+
+    function initIntermediary()
+    {
+        // set page content
+        var content = document.getElementById( "theContent" );
+        content.innerHTML = 
+            '<form>'                                                                +
+            '    username: <input type="text" name="user"/>'                        +
+            '    <br>'                                                              +
+            '    password: <input type="password" name="password"/>'                +
+            '    <br>'                                                              +
+            '    <input type="button" onclick="return submitForm(event);" value="submit"/>'+
+            '</form>';
+        
+        // establish connection to parent
+        createHubClient();
+        
+        // create hub instance for communication with child (the actual widget)
+        createIntermediateHub();
+    }
+
+    function createHubClient()
+    {
+        function onHubClientSecurityAlert( source, alertType ) {
+            console.log( "!! INTERMEDIARY: security alert from " + source._delegate._id + ": " + alertType ); // XXX private members, using for logging only.  Do not use in your code.
+        }
+
+        __hubClient = new OpenAjax.hub.IframeHubClient({
+              HubClient: {
+                  onSecurityAlert: onHubClientSecurityAlert,
+                  log: function( msg ) { console.log( msg ); }
+              }
+        });
+        __hubClient.connect( function( client, success, errCode ) {
+            if ( ! success ) {
+                console.log( "INTERMEDIARY: failed to connect to parent" );
+            } else {
+                console.log( "INTERMEDIARY: connected to parent" );
+            }
+        });
+    }
+
+    function createIntermediateHub()
+    {
+        function publishMgr( topic, data, pubClient, subClient ) {
+            // All publish events from widget must go through managed hub in
+            // parent, in order to properly handle any security policy.  So
+            // here, we only allow publish events from the intermediary managed
+            // hub to the widget (these would be publish events that are
+            // "forwarded" from the parent managed hub).
+            var allow = false;
+            if ( pubClient == null && subClient == __widgetContainer ) {
+                allow = true;
+            }
+
+            var pubClientID = pubClient ? pubClient.getClientID() : "manager";
+            var subClientID = subClient ? subClient.getClientID() : "manager";
+            console.log( "INTERMEDIARY: PUB" +
+                    (allow ? "" : " DECLINED") +
+                    ": " + pubClientID + " -> " + subClientID + " || topic: '" + topic + "' data: '" + data + "'" );
+            
+            // if widget is publishing, forward event to parent
+            if ( pubClient == __widgetContainer && subClient == null ) {
+                console.log( "INTERMEDIARY: Forwarding publish event to parent: topic: " + topic + '  data: ' + data );
+                __hubClient.publish( topic, data );
+            }
+
+            return allow;
+        }
+
+        function subscribeMgr( topic, client ) {
+            var clientID = client ? client.getClientID() : "manager";
+            console.log( "INTERMEDIARY: SUB: id: '" + clientID + "' topic: '" + topic + "'" );
+            
+            // When the widget subscribes to a topic, we subscribe to the same
+            // topic in the parent managed hub.  When a publish event is
+            // received on that topic, we forward it to the widget.
+            if ( clientID != "manager" && client == __widgetContainer ) {
+                // only subscribe to each topic once
+                if ( ! __subs[ topic ] ) {
+                    var subID = __hubClient.subscribe( topic,
+                            function( topic, data, subscriberData ) { /*onData*/
+                                // publish event from parent -- forward to client
+                                console.log( "INTERMEDIARY: Forwarding publish event to client: topic: " + topic + '  data: ' + data );
+                                __hub.publish( topic, data );
+                            },
+                            null /* scope */,
+                            function( subscriberID, success, error ) { /*onComplete*/
+                                if ( ! success ) {
+                                    console.log( "!! INTERMEDIARY: failed to subscribe to parent topic (" + topic + ")" );
+                                    return;
+                                }
+                            }
+                    );
+                    __subs[ topic ] = { sid: subID, n: 0 };
+                }
+                
+                __subs[ topic ].n++;
+            }
+            
+            return true;
+        }
+        
+        function unsubscribeMgr( topic, client ) {
+            var clientID = client ? client.getClientID() : "manager";
+            console.log( "INTERMEDIARY: UNSUB: id: '" + clientID + "' topic: '" + topic + "'" );
+
+            __subs[ topic ].n--;
+            if ( __subs[ topic ].n == 0 ) {
+                __hubClient.unsubscribe( __subs[ topic ].sid,
+                        function( subscriberID, success, error ) { /*onComplete*/
+                            if ( ! success ) {
+                                console.log( "!! INTERMEDIARY: failed to unsubscribe from parent topic (" + topic + ")" );
+                                return;
+                            }
+                        }
+                );
+                delete __subs[ topic ];
+            }
+        }
+        
+        __hub = new OpenAjax.hub.ManagedHub({
+            onPublish: publishMgr,
+            onSubscribe: subscribeMgr,
+            onUnsubscribe: unsubscribeMgr
+        });
+
+        // This is a "dummy" subscribe -- it ensures that there is something
+        // subscribed to any topic on which the widget would publish, so that
+        // our onPublish callback will be called for every topic.
+        __hub.subscribe( "*", function() {} );
+    }
+    
+    function submitForm(e)
+    {
+        loadWidget();
+
+        if ( e.stopPropagation ) e.stopPropagation();
+        e.cancelBubble = true;
+        return false;
+    }
+
+    function loadWidget()
+    {
+        var origin = window.location.protocol + "//" + window.location.host;
+        
+        // remove everything after the "?" (added by IframeContainer) & add
+        // "validated=true"
+        var widgetURI = origin + window.location.pathname + "?validated=true";
+        
+        // tunnel URI must be in this domain
+        var tunnelURI = origin + "/hub20/src/containers/iframe/tunnel.html";
+        
+        function onClientConnect( container ) {
+            console.log( "++ INTERMEDIARY: " + container.getClientID() + " connected" );
+        }
+        function onClientDisconnect( container ) {
+            console.log( "-- INTERMEDIARY: " + container.getClientID() + " disconnected" );
+        }
+        function onClientSecurityAlert( container, securityAlert ) {
+            console.log( "!! INTERMEDIARY: security alert - id: '" + container.getClientID() + "' msg: '" + securityAlert + "'");
+        }
+
+        var contentSpan = document.getElementById( "theContent" );
+        contentSpan.innerHTML = "";
+        
+        var iframeAttrs = { className: "iframeContainer" };
+        
+        __widgetContainer = new OpenAjax.hub.IframeContainer( __hub, "realWidget",
+            {   Container: {
+                    onConnect: onClientConnect,
+                    onDisconnect: onClientDisconnect,
+                    onSecurityAlert: onClientSecurityAlert,
+                    log: function( msg ) { console.log( msg ); }
+                },
+                IframeContainer: {
+                    parent: contentSpan,
+                    uri: widgetURI,
+                    tunnelURI: tunnelURI,
+                    iframeAttrs: iframeAttrs
+                }
+            }
+        );
+    }
+
+    //--------------------------------------------------------------------------
+    
+    var hubClient = null;
+    var subHandle = null;
+
+    function initWidget()
+    {
+        // set page content
+        var content = document.getElementById( "theContent" );
+        content.innerHTML = 
+            '<form>'                                                                        +
+            '  <input id="message" value="message from widget" type="text"/>'               +
+            '  <button id="sendButton" onclick="return sendMessage(event);">send</button>'         +
+            '  <button id="unsubButton" onclick="return unsubscribe(event);">unsubscribe</button>' +
+            '  <br><br>'                                                                    +
+            '  received messages:<br>'                                                      +
+            '  <textarea id="messages" readonly="readonly"></textarea>'                     +
+            '</form>';
+        
+        // establish connection to parent
+        hubClient = new OpenAjax.hub.IframeHubClient({
+                HubClient: {
+                    onSecurityAlert: onHubClientSecurityAlert,
+                    log: function( msg ) { console.log( msg ); }
+                }
+        });
+        hubClient.connect( onHubClientConnect );
+    }
+
+    // called when connection with mashup parent has been established
+    function onHubClientConnect( client, success, error )
+    {
+        if ( !success ) {
+            alert( "connection failed for " + client.getClientID() );
+            return;
+        }
+        
+        // widget is now ready
+        
+        // listen for event
+        subHandle = hubClient.subscribe( "topic1",
+                function( topic, data, subscriberData ) { /*onData*/
+                    document.getElementById( "messages" ).value += data + "\n";
+                },
+                null /* scope */,
+                function( subscriberID, success, error ) { /*onComplete*/
+                    if ( ! success ) {
+                        alert( "subscribe to topic1 failed for [" + hubClient.getClientID() + "]" );
+                        return;
+                    }
+                }
+        );
+    }
+
+    function onHubClientSecurityAlert( source, alertType )
+    {
+        alert( "security alert from " + source.getClientID() );
+    }
+
+    function sendMessage(e)
+    {
+        var msg = document.getElementById("message").value;
+        hubClient.publish( "topic1", msg );     
+        
+        if ( e.stopPropagation ) e.stopPropagation();
+        e.cancelBubble = true;
+        return false;
+    }
+    
+    function unsubscribe(e)
+    {
+        hubClient.unsubscribe( subHandle,
+                function( subscriberID, success, error ) { /*onComplete*/
+                    if ( ! success ) {
+                        alert( "unsubscribe to topic1 failed for [" + hubClient.getClientID() + "]" );
+                        return;
+                    }
+                }
+        );
+        
+        if ( e.stopPropagation ) e.stopPropagation();
+        e.cancelBubble = true;
+        return false;
+    }
+
+  </script>
+
+  <style>
+    textarea {
+      width:270px;
+      height: 100px;
+    }
+    #theContent {
+      width: 300px;
+      height: 200px;
+    }
+    .iframeContainer {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+  </style>
+  
+</head>
+<body onload="init();" style="margin: 0px;">
+
+<div id="theContent"></div>
+  
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!-- 
+Copyright 2006-2009 OpenAjax Alliance
+
+Licensed under the Apache License, Version 2.0 (the "License"); 
+you may not use this file except in compliance with the License. 
+You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software 
+distributed under the License is distributed on an "AS IS" BASIS, 
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+See the License for the specific language governing permissions and 
+limitations under the License.
+
+ClientApp2.html
+
+This is an HTML snippet that is retrieved and then dynamically inserted
+into a parent document.
+-->
+
+
+<script type="text/javascript">
+
+  // Handle security alerts:
+  function client1SecurityAlertHandler(source, alertType) {
+  }
+
+  // Callback called when a subscription receives data
+  function onData(topic, publisherData, subscriberData) {
+    if (typeof publisherData === "string") {
+      var messageArea = document.getElementById('messageArea');
+      // XSS protection: createTextNode strips HTML markup
+      var text = document.createTextNode(publisherData);
+	  messageArea.innerHTML = ""; 
+	  messageArea.appendChild(text);
+    }
+  }
+
+  /* 
+   * Create a OpenAjax.hub.InlineHubClient
+   */
+
+  var hubclient1 = new OpenAjax.hub.InlineHubClient({
+    HubClient: {
+      onSecurityAlert: client1SecurityAlertHandler
+    },
+    InlineHubClient: {
+      container: container1
+    }
+  });
+
+  // Callback that is invoked when HubClient's attempt to connect
+  // to the Managed Hub completes 
+  function clientApp1HubClientConnect( hubClient, success, error ) {
+    if (success) {
+      /* Call hubClient1.publish(...) to publish messages  */
+      /* Call hubClient1.subscribe(...) to subscribe to message topics */
+      hubclient1.subscribe('org.example.topics.textmessage', onData);
+    }
+  }
+
+  // Connect to the ManagedHub
+  hubclient1.connect( clientApp1HubClientConnect );
+
+</script>
+
+<div style="width:300; height:150; border:black solid 1px">
+  <h3>ClientApp1 content</h3>
+  <p>Messages received appear below:</p>
+  <p id="messageArea"></p>
+</div>

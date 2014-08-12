@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>receiver</title>
+  
+  <!-- OpenAjax scripts -->
+  <script type="text/javascript" src="/hub20/src/OpenAjax-mashup.js"></script>
+
+  <!-- containers -->
+  <script type="text/javascript" src="/hub20/src/containers/inline/inline.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/crypto.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/iframe.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/json2.js"></script>
+
+  <!-- RPC -->
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc-dependencies.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/fe.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/ifpc.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/nix.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rmr.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/wpm.transport.js"></script>
+  <script type="text/javascript" src="/hub20/src/containers/iframe/rpc/rpc.js"></script>
+
+  <!-- Actual Application -->
+  <script type="text/javascript">
+    
+    if ( typeof console === 'undefined' ) {
+        console = {
+            log: function() {}
+        }
+    }
+
+    function init()
+    {
+        initIntermediary();
+    }
+
+    //--------------------------------------------------------------------------
+    
+    var hubClient = null;
+    var intermediateHub = null;
+    var widgetContainer = null;
+    
+    var subs = {};
+    var hubEventQ = [];
+    
+    function initIntermediary()
+    {
+        // create hub instance for communication with child (the actual widget)
+        createIntermediateHub();
+        
+        loadWidget();
+    }
+
+    function createHubClient()
+    {
+        function onHubClientSecurityAlert( source, alertType ) {
+            console.log( "!! INTERMEDIATE HUB CLIENT: security alert from " + source.getClientID() + ": " + alertType );
+        }
+
+        hubClient = new OpenAjax.hub.IframeHubClient({
+              HubClient: {
+                  onSecurityAlert: onHubClientSecurityAlert,
+                  log: function( msg ) { console.log( msg ); }
+              }
+        });
+        hubClient.connect( function( client, success, errCode ) {
+            if ( ! success ) {
+                console.log( "INTERMEDIATE HUB CLIENT: failed to connect to parent" );
+            } else {
+                console.log( "INTERMEDIATE HUB CLIENT: connected to parent" );
+                processHubEvent();
+            }
+        });
+    }
+
+    function createIntermediateHub()
+    {
+        function onClientPublish( topic, data, pubClient, subClient ) {
+            // All publish events from widget must go through managed hub in
+            // parent, in order to properly handle any security policy.  So
+            // here, we only allow publish events from the intermediary managed
+            // hub to the widget (these would be publish events that are
+            // "forwarded" from the parent managed hub).
+            var allow = false;
+            if ( pubClient == null && subClient == widgetContainer ) {
+                allow = true;
+            }
+
+            var pubClientID = pubClient ? pubClient.getClientID() : "manager";
+            var subClientID = subClient ? subClient.getClientID() : "manager";
+            console.log( "INTERMEDIATE HUB: PUB" +
+                    (allow ? "" : " DECLINED") +
+                    ": " + pubClientID + " -> " + subClientID + " || topic: '" + topic + "' data: '" + data + "'" );
+            
+            // if widget is publishing, forward event to parent
+            if ( pubClient == widgetContainer && subClient == null ) {
+                console.log( "INTERMEDIATE HUB: Forwarding publish event to parent: topic: " + topic + '  data: ' + data );
+                if ( hubClient.isConnected() ) {
+                    hubClient.publish( topic, data );
+                } else {
+                    hubEventQ.push( { e: "pub", a: [ topic, data ] } );
+                }
+            }
+
+            return allow;
+        }
+
+        function onClientSubscribe( topic, client ) {
+            var clientID = client ? client.getClientID() : "manager";
+            console.log( "INTERMEDIATE HUB: SUB: id: '" + clientID + "' topic: '" + topic + "'" );
+            
+            // When the widget subscribes to a topic, we subscribe to the same
+            // topic in the parent managed hub.  When a publish event is
+            // received on that topic, we forward it to the widget.
+            if ( clientID != "manager" && client == widgetContainer ) {
+                if ( hubClient.isConnected() ) {
+                    subscribeToParent( topic, client );
+                } else {
+console.log("%% pushing sub event: " + topic );
+                    hubEventQ.push( { e: "sub", a: [ topic, client ] } );
+                }
+            }
+            
+            return true;
+        }
+        
+        function onClientUnsubscribe( topic, client ) {
+            var clientID = client ? client.getClientID() : "manager";
+            console.log( "INTERMEDIATE HUB: UNSUB: id: '" + clientID + "' topic: '" + topic + "'" );
+
+            subs[ topic ].n--;
+            if ( subs[ topic ].n == 0 ) {
+                hubClient.unsubscribe( subs[ topic ].sid,
+                        function( subscriberID, success, error ) { /*onComplete*/
+                            if ( ! success ) {
+                                console.log( "!! INTERMEDIATE HUB: failed to unsubscribe from parent topic (" + topic + ")" );
+                                return;
+                            }
+                        }
+                );
+                delete subs[ topic ];
+            }
+        }
+        
+        intermediateHub = new OpenAjax.hub.ManagedHub({
+            onPublish: onClientPublish,
+            onSubscribe: onClientSubscribe,
+            onUnsubscribe: onClientUnsubscribe
+        });
+
+        // This is a "dummy" subscribe -- it ensures that there is something
+        // subscribed to any topic on which the widget would publish, so that
+        // our onPublish callback will be called for every topic.
+        intermediateHub.subscribe( "**", function() {} );
+    }
+    
+    function processHubEvent()
+    {
+        var event;
+        while ( hubEventQ.length > 0 ) {
+            event = hubEventQ.shift();
+console.log("%% processing event queue: e=" + event.e + " topic=" + event.a[0] );
+            switch ( event.e )
+            {
+                case "pub":
+                    hubClient.publish.apply( hubClient, event.a );
+                    break;
+            
+                case "sub":
+                    subscribeToParent.apply( this, event.a );
+                    break;
+            
+                case "unsub":
+                    break;
+            }
+        }
+    }
+    
+    function subscribeToParent( topic, client )
+    {
+console.log("%% real subscribe" );
+        // only subscribe to each topic once
+        if ( ! subs[ topic ] ) {
+            var subID = hubClient.subscribe( topic,
+                    function( topic, data ) { /*onData*/
+                        // publish event from parent -- forward to client
+                        console.log( "INTERMEDIATE HUB: Forwarding publish event to client: topic: " + topic + '  data: ' + data );
+                        intermediateHub.publish( topic, data );
+                    },
+                    null /* scope */,
+                    function( subscriberID, success, error ) { /*onComplete*/
+                        if ( ! success ) {
+                            console.log( "!! INTERMEDIATE HUB: failed to subscribe to parent topic (" + topic + ")" );
+                            return;
+                        }
+                    }
+            );
+            subs[ topic ] = { sid: subID, n: 0 };
+        }
+        
+        subs[ topic ].n++;
+    }
+    
+    function loadWidget()
+    {
+        var origin = window.location.protocol + "//" + window.location.host;
+        
+        // remove everything after the "?" (added by IframeContainer)
+        var widgetURI = origin + window.location.pathname.replace( "intermediary.html", "widget.html" );
+        
+        // tunnel URI must be in this domain
+        var tunnelURI = origin + "/hub20/src/containers/iframe/tunnel.html";
+        
+        function onClientDisconnect( container ) {
+            console.log( "-- INTERMEDIATE CONTAINER: " + container.getClientID() + " disconnected" );
+        }
+        function onClientSecurityAlert( container, securityAlert ) {
+            console.log( "!! INTERMEDIATE CONTAINER: security alert - id: '" + container.getClientID() + "' msg: '" + securityAlert + "'");
+        }
+
+        var iframeAttrs = { className: "iframeContainer" };
+        
+        widgetContainer = new OpenAjax.hub.IframeContainer(
+            intermediateHub,
+            "theRealWidget",
+            {   Container: {
+                    onConnect: onClientConnect,
+                    onDisconnect: onClientDisconnect,
+                    onSecurityAlert: onClientSecurityAlert,
+                    log: function( msg ) { console.log( msg ); }
+                },
+                IframeContainer: {
+                    parent: document.getElementById( "theContent" ),
+                    uri: widgetURI,
+                    tunnelURI: tunnelURI,
+                    iframeAttrs: iframeAttrs
+                }
+            }
+        );
+    }
+    
+    // client has connected -- establish connection to parent
+    function onClientConnect( container ) {
+        console.log( "++ INTERMEDIATE CONTAINER: " + container.getClientID() + " connected" );
+        createHubClient();
+    }
+
+  </script>
+
+  <style>
+    #theContent {
+      width: 300px;
+      height: 200px;
+    }
+    .iframeContainer {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+  </style>
+  
+</head>
+<body onload="init();" style="margin: 0px;">
+
+<div id="theContent"></div>
+  
+</body>
+</html>
