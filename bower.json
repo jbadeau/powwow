@@ -28,22 +28,11 @@
       }
    ],
    "dependencies":{
-      "semantic":"*",
-      "bootstrap":"*",
-      "bacon":"*",
-      "lodash":"*",
-      "system.js":"*",
-      "traceur-runtime":"*",
       "polymer":"0.3.3",
+      "requirejs":"2.1.14",
       "when":"3.4.3",
       "msgs":"0.4.0",
-      "rest":"1.1.1",
-      "jquery":"2.0.3",
-      "lodash":"2.4.1",
-      "requirejs":"2.1.14",
-      "requirejs-text":"2.0.12",
-      "requirejs-plugins": "*",
-      "rjs":"2.1.14"
+      "rest":"1.1.1"
    },
    "devDependencies":{
 
