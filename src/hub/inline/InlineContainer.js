@@ -1,90 +1,100 @@
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
-		define([ '../Container' ], factory);
+		define([ 'dejavu/Class', '../Container' ], factory);
 	}
 	else {
-		root.InlineContainer = factory(root.Container);
+		root.powwow.inline.InlineContainer = factory(root.dejavu.Class, root.powwow.hub.Container);
 	}
-}(this, function(Container) {
+}(this, function(Class, Container) {
 
 	'use strict';
 
-	function InlineContainer(hub, clientID, params) {
-		if (!hub || !clientID || !params || !params.Container || !params.Container.onSecurityAlert) {
-			throw new Error(OpenAjax.hub.Error.BadParameters);
-		}
+	var InlineContainer = Class.declare({
 
-		var cbScope = params.Container.scope || window;
-		var connected = false;
-		var subs = [];
-		var subIndex = 0;
-		var client = null;
+		$name : 'InlineContainer',
 
-		if (params.Container.log) {
-			var log = function(msg) {
-				try {
-					params.Container.log.call(cbScope, "InlineContainer::" + clientID + ": " + msg);
-				}
-				catch (e) {
-					OpenAjax.hub._debugger();
-				}
-			};
-		}
-		else {
-			log = function() {
-			};
-		}
+		$implements : Container,
 
-		this._init = function() {
-			hub.addContainer(this);
-		};
-	}
-
-	InlineContainer.prototype = {
-
-		getHub : function() {
-			return hub;
+		/**
+		 * Create a new Inline Container.
+		 *
+		 * @constructor
+		 *
+		 * InlineContainer implements the Container interface to provide a
+		 * container that places components within the same browser frame as the
+		 * main mashup application. As such, this container does not isolate
+		 * client components into secure sandboxes.
+		 *
+		 * @param {OpenAjax.hub.ManagedHub}
+		 *            hub Managed Hub instance to which this Container belongs
+		 * @param {String}
+		 *            clientID A string ID that identifies a particular client
+		 *            of a Managed Hub. Unique within the context of the
+		 *            ManagedHub.
+		 * @param {Object}
+		 *            params Parameters used to instantiate the InlineContainer.
+		 *            Once the constructor is called, the params object belongs
+		 *            exclusively to the InlineContainer. The caller MUST not
+		 *            modify it. The following are the pre-defined properties on
+		 *            params:
+		 * @param {Function}
+		 *            params.Container.onSecurityAlert Called when an attempted
+		 *            security breach is thwarted. Function is defined as
+		 *            follows: function(container, securityAlert)
+		 * @param {Function}
+		 *            [params.Container.onConnect] Called when the client
+		 *            connects to the Managed Hub. Function is defined as
+		 *            follows: function(container)
+		 * @param {Function}
+		 *            [params.Container.onDisconnect] Called when the client
+		 *            disconnects from the Managed Hub. Function is defined as
+		 *            follows: function(container)
+		 * @param {Object}
+		 *            [params.Container.scope] Whenever one of the Container's
+		 *            callback functions is called, references to "this" in the
+		 *            callback will refer to the scope object. If no scope is
+		 *            provided, default is window.
+		 * @param {Function}
+		 *            [params.Container.log] Optional logger function. Would be
+		 *            used to log to console.log or equivalent.
+		 *
+		 * @throws {OpenAjax.hub.Error.BadParameters}
+		 *             if required params are not present or null
+		 * @throws {OpenAjax.hub.Error.Duplicate}
+		 *             if a Container with this clientID already exists in the
+		 *             given Managed Hub
+		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *             if ManagedHub is not connected
+		 */
+		initialize : function(hub, clientID, params) {
 		},
 
-		sendToClient : function(topic, data, subscriptionID) {
-			if (connected) {
-				var sub = subs[subscriptionID];
-				try {
-					sub.cb.call(sub.sc, topic, data, sub.d);
-				}
-				catch (e) {
-					OpenAjax.hub._debugger();
-					client._log("caught error from onData callback to HubClient.subscribe(): " + e.message);
-				}
-			}
+		/** ****************************************************************** */
+		/** Container interface methods */
+		/** ****************************************************************** */
+
+		sendToClient : function(topic, data, containerSubscriptionId) {
 		},
 
 		remove : function() {
-			if (connected) {
-				finishDisconnect();
-			}
 		},
 
 		isConnected : function() {
-			return connected;
 		},
 
 		getClientID : function() {
-			return clientID;
 		},
 
 		getPartnerOrigin : function() {
-			if (connected) {
-				return window.location.protocol + "//" + window.location.hostname;
-			}
-			return null;
 		},
 
 		getParameters : function() {
-			return params;
+		},
+
+		getHub : function() {
 		}
 
-	};
+	});
 
 	return InlineContainer;
 

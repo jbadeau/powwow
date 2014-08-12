@@ -3,7 +3,7 @@
 		define([ 'dejavu/Interface' ], factory);
 	}
 	else {
-		root.Hub = factory(root.dejavu.Interface);
+		root.powwow.Hub = factory(root.dejavu.Interface);
 	}
 }(this, function(Interface) {
 
@@ -61,7 +61,7 @@
 
 		/**
 		 * Subscribe to a topic.
-		 * 
+		 *
 		 * @param {String}
 		 *            topic A valid topic string. MAY include wildcards.
 		 * @param {Function}
@@ -78,12 +78,12 @@
 		 *            [subscriberData] Client application provides this data,
 		 *            which is handed back to the client application in the
 		 *            subscriberData parameter of the onData callback function.
-		 * 
+		 *
 		 * @returns subscriptionID Identifier representing the subscription.
 		 *          This identifier is an arbitrary ID string that is unique
 		 *          within this Hub instance
 		 * @type {String}
-		 * 
+		 *
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.BadParameters}
@@ -94,14 +94,14 @@
 
 		/**
 		 * Publish an event on a topic
-		 * 
+		 *
 		 * @param {String}
 		 *            topic A valid topic string. MUST NOT include wildcards.
 		 * @param {*}
 		 *            data Valid publishable data. To be portable across
 		 *            different Container implementations, this value SHOULD be
 		 *            serializable as JSON.
-		 * 
+		 *
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.BadParameters}
@@ -114,7 +114,7 @@
 
 		/**
 		 * Unsubscribe from a subscription
-		 * 
+		 *
 		 * @param {String}
 		 *            subscriptionID A subscriptionID returned by
 		 *            Hub.subscribe()
@@ -125,7 +125,7 @@
 		 *            [scope] When onComplete callback function is invoked, the
 		 *            JavaScript "this" keyword refers to this scope object. If
 		 *            no scope is provided, default is window.
-		 * 
+		 *
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.NoSubscription}
@@ -137,10 +137,10 @@
 		/**
 		 * Return true if this Hub instance is in the Connected state. Else
 		 * returns false.
-		 * 
+		 *
 		 * This function can be called even if the Hub is not in a CONNECTED
 		 * state.
-		 * 
+		 *
 		 * @returns Boolean
 		 * @type {Boolean}
 		 */
@@ -150,10 +150,10 @@
 		/**
 		 * Returns the scope associated with this Hub instance and which will be
 		 * used with callback functions.
-		 * 
+		 *
 		 * This function can be called even if the Hub is not in a CONNECTED
 		 * state.
-		 * 
+		 *
 		 * @returns scope object
 		 * @type {Object}
 		 */
@@ -163,13 +163,13 @@
 		/**
 		 * Returns the subscriberData parameter that was provided when
 		 * Hub.subscribe was called.
-		 * 
+		 *
 		 * @param {String}
 		 *            subscriptionID The subscriberID of a subscription
-		 * 
+		 *
 		 * @returns subscriberData
 		 * @type {*}
-		 * 
+		 *
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.NoSubscription}
@@ -182,13 +182,13 @@
 		 * Returns the scope associated with a specified subscription. This
 		 * scope will be used when invoking the 'onData' callback supplied to
 		 * Hub.subscribe().
-		 * 
+		 *
 		 * @param {String}
 		 *            subscriberID The subscriberID of a subscription
-		 * 
+		 *
 		 * @returns scope
 		 * @type {*}
-		 * 
+		 *
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.NoSubscription}
@@ -199,7 +199,7 @@
 
 		/**
 		 * Returns the params object associated with this Hub instance.
-		 * 
+		 *
 		 * @returns params The params object associated with this Hub instance
 		 * @type {Object}
 		 */
