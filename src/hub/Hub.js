@@ -19,43 +19,43 @@
 			 * Either a required argument is missing or an invalid argument was
 			 * provided
 			 */
-			ERROR_BAD_PARAMETERS : "ERROR_BAD_PARAMETERS",
+			ERROR_BAD_PARAMETERS : "BAD_PARAMETERS",
 
 			// The specified hub has been disconnected and cannot perform the
 			// requested operation:
-			ERROR_DISCONNECTED : "ERROR_DISCONNECTED",
+			ERROR_DISCONNECTED : "DISCONNECTED",
 
 			// Container with specified ID already exists:
-			ERROR_DUPLICATE : "ERROR_DUPLICATE",
+			ERROR_DUPLICATE : "DUPLICATE",
 
 			// The specified ManagedHub has no such Container (or it has been
 			// removed)
-			ERROR_NO_CONTAINER : "ERROR_NO_CONTAINER",
+			ERROR_NO_CONTAINER : "NO_CONTAINER",
 
 			// The specified ManagedHub or Container has no such subscription
-			ERROR_NO_SUBSCRIPTION : "ERROR_NO_SUBSCRIPTION",
+			ERROR_NO_SUBSCRIPTION : "NO_SUBSCRIPTION",
 
 			// Permission denied by manager's security policy
-			ERROR_NOT_ALLOWED : "ERROR_NOT_ALLOWED",
+			ERROR_NOT_ALLOWED : "NOT_ALLOWED",
 
 			// Wrong communications protocol identifier provided by Container or
 			// HubClient
-			ERROR_WRONG_PROTOCOL : "ERROR_WRONG_PROTOCOL",
+			ERROR_WRONG_PROTOCOL : "WRONG_PROTOCOL",
 
 			// A 'tunnelURI' param was specified, but current browser does not
 			// support security features
-			ERROR_INCOMPATIBLE_BROWSER : "ERROR_INCOMPATIBLE_BROWSER",
+			ERROR_INCOMPATIBLE_BROWSER : "INCOMPATIBLE_BROWSER",
 
 			// Container did not load (possible frame phishing attack)
-			ALERT_LOAD_TIMEOUT : "ALERT_LOAD_TIMEOUT",
+			ALERT_LOAD_TIMEOUT : "LOAD_TIMEOUT",
 
 			// Hub suspects a frame phishing attack against the specified
 			// container
-			ALERT_FRAME_PHISH : "ALERT_FRAME_PHISH",
+			ALERT_FRAME_PHISH : "FRAME_PHISH",
 
 			// Hub detected a message forgery that purports to come to a
 			// specified container
-			ALERT_FORGED_MESSAGE : "ALERT_FORGED_MESSAGE"
+			ALERT_FORGED_MESSAGE : "FORGED_MESSAGE"
 
 		},
 
