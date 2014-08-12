@@ -229,31 +229,51 @@
 		removeContainer : function(container) {
 		},
 
-		/** ****************************************************************** */
-		/** HUB interface methods */
-		/** ****************************************************************** */
-
+		/**
+		 * @see {powwow.hub.Hub#subscribe}
+		 */
 		subscribe : function(topic, onData, scope, onComplete, subscriberData) {
 		},
 
+		/**
+		 * @see {powwow.hub.Hub#publish}
+		 */
 		publish : function(topic, data) {
 		},
 
+		/**
+		 * @see {powwow.hub.Hub#unsubscribe}
+		 */
 		unsubscribe : function(subscriptionID, onComplete, scope) {
 		},
 
+		/**
+		 * @see {powwow.hub.Hub#isConnected}
+		 */
 		isConnected : function() {
 		},
 
+		/**
+		 * @see {powwow.hub.Hub#getScope}
+		 */
 		getScope : function() {
 		},
 
+		/**
+		 * @see {powwow.hub.Hub#getSubscriberData}
+		 */
 		getSubscriberData : function(subscriptionID) {
 		},
 
+		/**
+		 * @see {powwow.hub.Hub#getSubscriberScope}
+		 */
 		getSubscriberScope : function(subscriberID) {
 		},
 
+		/**
+		 * @see {powwow.hub.Hub#getParameters}
+		 */
 		getParameters : function() {
 		}
 
