@@ -3,8 +3,13 @@ requirejs.config({
 	baseUrl: '.',
 
 	packages : [
-		{ name: 'powwow', location: '../src', main: 'powwow' }
-	]
+        { name: 'powwow', location: '../src', main: 'powwow' },
+        { name: 'dejavu', location: '../bower_components/dejavu/dist/amd/strict', main: 'main' },
+        { name: 'mout', location: '../bower_components/mout/src', main: 'index' },
+        { name: 'when', location: '../bower_components/when', main: 'when' },
+        { name: 'rest', location: '../bower_components/rest', main: 'rest' },
+        { name: 'msgs', location: '../bower_components/msgs', main: 'msgs' }
+    ]
 
 });
 
