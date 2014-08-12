@@ -1,0 +1,18 @@
+{
+  "name": "dejavu",
+  "version": "0.4.5",
+  "main": "dist/",
+  "dependencies": {
+    "mout": "~0.4.0"
+  },
+  "homepage": "https://github.com/IndigoUnited/dejavu",
+  "_release": "0.4.5",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.4.5",
+    "commit": "e9c87ae52adcf0a65e7af77a806b3bb74e2d6fa6"
+  },
+  "_source": "git://github.com/IndigoUnited/dejavu.git",
+  "_target": "0.4.5",
+  "_originalSource": "dejavu"
+}

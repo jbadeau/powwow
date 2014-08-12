@@ -1,0 +1,53 @@
+{
+  "name": "dejavu",
+  "description": "A set of object-oriented tools for JavaScript",
+  "keywords": [
+    "oop",
+    "interface",
+    "class",
+    "abstract",
+    "final",
+    "inheritance"
+  ],
+  "version": "0.4.5",
+  "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
+  "main": "dist/node/node.js",
+  "dependencies": {
+    "amdefine": "~0.0.4",
+    "mout": "~0.4.0"
+  },
+  "devDependencies": {
+    "almond": "~0.2.1",
+    "async": "~0.2.6",
+    "dejavu-optimizer": "~0.4.0",
+    "domReady": "git://github.com/requirejs/domReady.git",
+    "escape-string-regexp": "^1.0.1",
+    "expect.js": "~0.2.0",
+    "fstream": "~0.1.22",
+    "glob": "~3.1.21",
+    "mkdirp": "~0.3.5",
+    "mocha": "~1.8.1",
+    "requirejs": "~2.1.2",
+    "rimraf": "~2.1.2",
+    "testem": "~0.5.0"
+  },
+  "scripts": {
+    "build": "node bin/build",
+    "test": "testem ci -l Chrome,Firefox,Safari,Opera,IE9,IE8,IE7,IE6,Node-Strict,Node-Loose,Node-Specific",
+    "postinstall": "node bin/post_install.js"
+  },
+  "bugs": {
+    "url": "https://github.com/IndigoUnited/dejavu/issues/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/IndigoUnited/dejavu.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "engine": "node >= 0.8.x"
+}

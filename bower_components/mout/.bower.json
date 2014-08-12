@@ -1,0 +1,15 @@
+{
+  "name": "mout",
+  "version": "0.4.0",
+  "main": "src/",
+  "homepage": "https://github.com/mout/mout",
+  "_release": "0.4.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.4.0",
+    "commit": "158e1c30a6ed97d89fe0677154c05cd779cbf6de"
+  },
+  "_source": "git://github.com/mout/mout.git",
+  "_target": "~0.4.0",
+  "_originalSource": "mout"
+}

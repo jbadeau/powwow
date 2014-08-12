@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>dejavu tests</title>
+        <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+        <script src="../node_modules/mocha/mocha.js"></script>
+        <!-- Testem support -->
+        <script type="text/javascript">
+            if (location.hash.indexOf('#testem') !== -1) {
+                document.write('<script src="/testem.js"></'+'script>');
+            }
+        </script>
+        <script src="../node_modules/expect.js/expect.js"></script>
+        <script src="../node_modules/requirejs/require.js"></script>
+        <script src="util/browser.js"></script>
+        <script src="util/adapter.js"></script>
+        <script>
+            (function () {
+                var build = getBuild();
+
+                mocha.setup({
+                    ui: 'bdd',
+                    globals: ['console']
+                });
+
+                require(['domReady!', build], function () {
+                    var elem = document.getElementById(build);
+                        isTestem = location.hash.indexOf('#testem') !== -1;
+
+                    // Set build link active
+                    if (elem) {
+                        elem.className = 'active';
+                    }
+
+                    // Append #testem to build links
+                    if (isTestem) {
+                        element = document.getElementById('strict').childNodes[0];
+                        element.href += '#testem';
+                        element = document.getElementById('loose').childNodes[0];
+                        element.href += '#testem';
+                    }
+
+                    mocha
+                    .run();
+                });
+            }());
+        </script>
+        <style>
+            #build {
+                height: 50px;
+                position: absolute;
+                top: 0px;
+                left: 15px;
+                right: 350px;
+            }
+            #build li {
+                list-style: none;
+                float: left;
+                margin-left: 20px;
+            }
+            #build li a, #build li a:active, #build li a:visited {
+                color: #D00972;
+                text-decoration: none;
+            }
+            #build li.active a {
+                color: #FF17E8;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <ul id="build">
+            <li id="strict"><a href="?build=strict">strict build</a></li>
+            <li id="loose"><a href="?build=loose">loose build</a></li>
+        </ul>
+
+        <div id="mocha"></div>
+    </body>
+</html>
