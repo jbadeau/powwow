@@ -55,9 +55,11 @@
 			throw new Error(OpenAjax.hub.Error.BadParameters);
 		}
 
+		this._params = params;
+
 		var client = this;
 		var scope = params.HubClient.scope || window;
-		var connected = false;
+		this._connected = false;
 		var subs = {};
 		var subIndex = 0;
 		var clientID;
@@ -83,28 +85,33 @@
 
 	IframeHubClient.prototype = {
 
+		_param : null,
+
+		_connected : null,
+
 		_init : function() {
-			var urlParams = OpenAjax.gadgets.util.getUrlParameters();
-			if (!urlParams.parent) {
-				// The RMR transport does not require a valid relay file, but
-				// does need a URL
-				// in the parent's domain. The URL does not need to point to
-				// valid file, so just
-				// point to 'robots.txt' file. See RMR transport code for more
-				// info.
-				var parent = urlParams.oahParent + "/robots.txt";
-				OpenAjax.gadgets.rpc.setupReceiver("..", parent);
-			}
+			//var urlParams = OpenAjax.gadgets.util.getUrlParameters();
 
-			if (params.IframeHubClient && params.IframeHubClient.requireParentVerifiable && OpenAjax.gadgets.rpc.getReceiverOrigin("..") === null) {
-				// If user set 'requireParentVerifiable' to true but RPC
-				// transport does not
-				// support this, throw error.
-				OpenAjax.gadgets.rpc.removeReceiver("..");
-				throw new Error(OpenAjax.hub.Error.IncompatBrowser);
-			}
+//			if (!urlParams.parent) {
+//				// The RMR transport does not require a valid relay file, but
+//				// does need a URL
+//				// in the parent's domain. The URL does not need to point to
+//				// valid file, so just
+//				// point to 'robots.txt' file. See RMR transport code for more
+//				// info.
+//				var parent = urlParams.oahParent + "/robots.txt";
+//				OpenAjax.gadgets.rpc.setupReceiver("..", parent);
+//			}
 
-			OpenAjax.hub.IframeContainer._rpcRouter.add("..", this);
+//			if (this._param.IframeHubClient && this._param.IframeHubClient.requireParentVerifiable && OpenAjax.gadgets.rpc.getReceiverOrigin("..") === null) {
+//				// If user set 'requireParentVerifiable' to true but RPC
+//				// transport does not
+//				// support this, throw error.
+//				OpenAjax.gadgets.rpc.removeReceiver("..");
+//				throw new Error(OpenAjax.hub.Error.IncompatBrowser);
+//			}
+//
+//			OpenAjax.hub.IframeContainer._rpcRouter.add("..", this);
 			// XXX The RPC layer initializes immediately on load, in the child
 			// (IframeHubClient). So it is too
 // late here to specify a security token for the RPC layer. At the moment, only
@@ -112,23 +119,23 @@
 // transport requires a child token (IFPC [aka FIM] is not supported).
 // securityToken = generateSecurityToken( params, scope, log );
 
-			clientID = OpenAjax.gadgets.rpc.RPC_ID;
-			if (urlParams.oahId) {
-				clientID = clientID.substring(0, clientID.lastIndexOf('_'));
-			}
+//			clientID = OpenAjax.gadgets.rpc.RPC_ID;
+//			if (urlParams.oahId) {
+//				clientID = clientID.substring(0, clientID.lastIndexOf('_'));
+//			}
 		},
 
 		/** * HubClient interface ** */
 
 		connect : function(onComplete, scope) {
-			if (connected) {
+			if (this._connected) {
 				throw new Error(OpenAjax.hub.Error.Duplicate);
 			}
 
 			// connect acknowledgement
 			function callback(result) {
 				if (result) {
-					connected = true;
+					this._connected = true;
 					if (onComplete) {
 						try {
 							onComplete.call(scope || window, client, true);
