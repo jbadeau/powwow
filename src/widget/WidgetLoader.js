@@ -1,20 +1,17 @@
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
-		define([], factory);
-	}
-	else if (typeof exports === 'object') {
-		module.exports = factory();
+		define([ '../hub/Hub', './iframe/IframeWidget', './inline/InlineWidget' ], factory);
 	}
 	else {
-		root.Widget = factory();
+		root.WidgetLoader = factory(root.Hub, root.IframeWidget, root.InlineWidget);
 	}
-}(this, function() {
+}(this, function(Hub, IframeWidget, InlineWidget) {
 
-	function Widget() {
+	function WidgetLoader() {
 	}
 
-	Widget.prototype = {};
+	WidgetLoader.prototype = {};
 
-	return Widget;
+	return WidgetLoader;
 
 }));

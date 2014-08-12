@@ -1,20 +1,18 @@
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define([], factory);
-    } else if (typeof exports === 'object') {
-        // Node. Does not work with strict CommonJS, but
-        // only CommonJS-like environments that support module.exports,
-        // like Node.
-        module.exports = factory();
-    } else {
-        // Browser globals (root is window)
-        root.returnExports = factory();
-  }
-}(this, function () {
-	var powwow = {};
+(function(root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define([ 'powwow' ], factory);
+	}
+	else {
+		root.powwowSpec = factory(root.powwow);
+	}
+}(this, function(powwow) {
 
-	powwow.VERSION = '0.1.0';
+	describe("powwow", function() {
 
-	return powwow;
+		it("should contain a version property", function() {
+			expect(powwow.VERSION).toBe("0.1.0");
+		});
+
+	});
+
 }));
