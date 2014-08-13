@@ -11,9 +11,11 @@ define([ 'powwow/hub/inline/InlineHubClient' ], function(InlineHubClient) {
 
 	});
 
-	hubClient.connect(function(hubClient, success, error) {
-		if (success) {
-		}
+	hubClient.connect()
+	.then(function(hubClient) {
+		console.info('hubClient ' + hubClient + ' successfully connected');
+	}, function(error) {
+		error.info('hubClient ' + hubClient + ' failed to connect', error);
 	});
 
 });
