@@ -1,7 +1,11 @@
 requirejs.config({
 
 	baseUrl: '.',
-
+	
+	paths : {
+		'sprintf' : '../bower_components/sprintf/src/sprintf',
+	},
+	
 	packages : [
         { name: 'powwow', location: '../src', main: 'powwow' },
         { name: 'dejavu', location: '../bower_components/dejavu/dist/amd/strict', main: 'main' },
