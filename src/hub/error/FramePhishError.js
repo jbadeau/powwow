@@ -3,22 +3,22 @@
 		define([ 'dejavu/Class' ], factory);
 	}
 	else {
-		root.powwow.hub.error.DisconnectedError = factory(root.dejavu.Class);
+		root.powwow.hub.error.FramePhishError = factory(root.dejavu.Class);
 	}
 }(this, function(Class) {
 
 	'use strict';
 
-	var DisconnectedError = Class.declare({
+	var FramePhishError = Class.declare({
 
-		$name : 'DisconnectedError',
+		$name : 'FramePhishError',
 
 		$extends : Error,
 
-		name : 'DisconnectedError'
+		name : 'FramePhishError'
 
 	});
 
-	return DisconnectedError;
+	return FramePhishError;
 
 }));

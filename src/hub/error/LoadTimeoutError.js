@@ -3,22 +3,22 @@
 		define([ 'dejavu/Class' ], factory);
 	}
 	else {
-		root.powwow.hub.error.DisconnectedError = factory(root.dejavu.Class);
+		root.powwow.hub.error.LoadTimeoutError = factory(root.dejavu.Class);
 	}
 }(this, function(Class) {
 
 	'use strict';
 
-	var DisconnectedError = Class.declare({
+	var LoadTimeoutError = Class.declare({
 
-		$name : 'DisconnectedError',
+		$name : 'LoadTimeoutError',
 
 		$extends : Error,
 
-		name : 'DisconnectedError'
+		name : 'LoadTimeoutError'
 
 	});
 
-	return DisconnectedError;
+	return LoadTimeoutError;
 
 }));

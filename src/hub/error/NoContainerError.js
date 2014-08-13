@@ -3,22 +3,22 @@
 		define([ 'dejavu/Class' ], factory);
 	}
 	else {
-		root.powwow.hub.error.DisconnectedError = factory(root.dejavu.Class);
+		root.powwow.hub.error.NoContainerError = factory(root.dejavu.Class);
 	}
 }(this, function(Class) {
 
 	'use strict';
 
-	var DisconnectedError = Class.declare({
+	var NoContainerError = Class.declare({
 
-		$name : 'DisconnectedError',
+		$name : 'NoContainerError',
 
 		$extends : Error,
 
-		name : 'DisconnectedError'
+		name : 'NoContainerError'
 
 	});
 
-	return DisconnectedError;
+	return NoContainerError;
 
 }));

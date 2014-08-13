@@ -3,22 +3,22 @@
 		define([ 'dejavu/Class' ], factory);
 	}
 	else {
-		root.powwow.hub.error.DisconnectedError = factory(root.dejavu.Class);
+		root.powwow.hub.error.IncompatibleBrowserError = factory(root.dejavu.Class);
 	}
 }(this, function(Class) {
 
 	'use strict';
 
-	var DisconnectedError = Class.declare({
+	var IncompatibleBrowserError = Class.declare({
 
-		$name : 'DisconnectedError',
+		$name : 'IncompatibleBrowserError',
 
 		$extends : Error,
 
-		name : 'DisconnectedError'
+		name : 'IncompatibleBrowserError'
 
 	});
 
-	return DisconnectedError;
+	return IncompatibleBrowserError;
 
 }));
