@@ -11,11 +11,21 @@ define([ 'powwow/hub/inline/InlineHubClient' ], function(InlineHubClient) {
 
 	});
 
-	hubClient.connect()
-	.then(function(hubClient) {
+	hubClient.connect().then(function(hubClient) {
 		console.info('hubClient ' + hubClient + ' successfully connected');
+		return hubClient;
+	})
+
+	.then(function(hubClient) {
+		return hubClient.subscribe('org.example.topics.textmessage', function onData(topic, publisherData, subscriberData) {
+			console.info('received topic ' + topic + ' with published data ' + publisherData + ' and subscriber data ' + subscriberData);
+		});
+	})
+
+	.then(function(subscription) {
+		console.info('sucessfully subscribed to ' + subscription);
 	}, function(error) {
-		error.info('hubClient ' + hubClient + ' failed to connect', error);
+		console.error(error)
 	});
 
 });

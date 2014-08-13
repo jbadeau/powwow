@@ -18,6 +18,10 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 
 		client : null,
 
+		subscriptionIndex : null,
+		
+		subscriptions : null,
+
 		/**
 		 * Create a new Inline Container.
 		 * 
@@ -89,6 +93,8 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 			this.hub = hub;
 			this.clientID = clientID;
 			this.parameters = params;
+			this.subscriptionIndex = 0;
+			this.subscriptions = [];
 		},
 
 		/*
@@ -207,37 +213,37 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 		 * @see {powwow.hub.Hub#subscribe}
 		 */
 		subscribe : function(topic, onData, scope, onComplete, subscriberData) {
-			this.assertConnection();
-			assertSubTopic(topic);
-			if (!onData) {
-				throw new Error(Errors.BAD_PARAMETERS);
-			}
 
-			var subID = "" + subIndex++;
-			var success = false;
-			var msg = null;
-			try {
-				var handle = hub.subscribeForClient(this, topic, subID);
-				success = true;
-			}
-			catch (e) {
-				// failure
-				subID = null;
-				msg = e.message;
-			}
+			return new Promise(function(resolve, reject) {
+				try {
+					this.assertConnection();
+					this.assertSubTopic(topic);
+					if (!onData) {
+						throw new Error(Errors.BAD_PARAMETERS);
+					}
 
-			scope = scope || window;
-			if (success) {
-				subs[subID] = {
-					h : handle,
-					cb : onData,
-					sc : scope,
-					d : subscriberData
-				};
-			}
+					var subscriptionID = "" + this.subscriptionIndex++;
+					var success = false;
+					var msg = null;
 
-			invokeOnComplete(onComplete, scope, subID, success, msg);
-			return subID;
+					var handle = this.hub.subscribeForClient(this, topic, subscriptionID);
+					success = true;
+
+					scope = scope || window;
+					if (success) {
+						this.subscriptions[subscriptionID] = {
+							h : handle,
+							cb : onData,
+							sc : scope,
+							d : subscriberData
+						};
+					}
+					resolve(subscriptionID);
+				}
+				catch (error) {
+					reject(error);
+				}
+			}.bind(this));
 		},
 
 		/**

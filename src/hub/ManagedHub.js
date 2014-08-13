@@ -14,6 +14,10 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 
 		_containers : null,
 
+		_subscriptions : null,
+		
+		_sequence: null,
+
 		/**
 		 * Create a new ManagedHub instance
 		 * 
@@ -73,6 +77,8 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 			this._parameters = params;
 			this._connected = true;
 			this._containers = {};
+			this._subscriptions = { c:{}, s:null };
+			this._sequence = 0;
 		},
 
 		/**
@@ -121,7 +127,7 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		subscribeForClient : function(container, topic, containerSubID) {
 			this._assertConnection();
 			// check subscribe permission
-			if (this.invokeOnSubscribe(topic, container)) {
+			if (this._invokeOnSubscribe(topic, container)) {
 				// return ManagedHub's subscriptionID for this subscription
 				return this._subscribe(topic, this._sendToClient, this, {
 					c : container,
@@ -376,7 +382,7 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 
 		_invokeOnPublish : function(topic, data, pcont, scont) {
 			try {
-				return this._p.onPublish.call(this._scope, topic, data, pcont, scont);
+				return this._parameters.onPublish.call(this._scope, topic, data, pcont, scont);
 			}
 			catch (e) {
 				OpenAjax.hub._debugger();
@@ -387,7 +393,7 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 
 		_invokeOnSubscribe : function(topic, container) {
 			try {
-				return this._p.onSubscribe.call(this._scope, topic, container);
+				return this._parameters.onSubscribe.call(this._scope, topic, container);
 			}
 			catch (e) {
 				OpenAjax.hub._debugger();
@@ -410,12 +416,12 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		},
 
 		_subscribe : function(topic, onData, scope, subscriberData) {
-			var handle = topic + "." + this._seq;
+			var handle = topic + "." + this._sequence;
 			var sub = {
 				scope : scope,
 				cb : onData,
 				data : subscriberData,
-				sid : this._seq++
+				sid : this._sequence++
 			};
 			var path = topic.split(".");
 			this._recursiveSubscribe(this._subscriptions, path, 0, sub);
