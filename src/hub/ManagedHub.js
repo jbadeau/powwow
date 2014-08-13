@@ -3,7 +3,7 @@
 		define([ 'dejavu/Class', './Hub' ], factory);
 	}
 	else {
-		root.powwow.ManagedHub = factory(root.dejavu.Class, root.powwow.hub.Hub);
+		root.powwow.hub.ManagedHub = factory(root.dejavu.Class, root.powwow.hub.Hub);
 	}
 }(this, function(Class, Hub) {
 

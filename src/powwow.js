@@ -15,6 +15,7 @@
 
 	// hub
 	powwow.hub = {};
+	powwow.hub.error = {};
 	powwow.hub.Hub = Hub;
 	powwow.hub.Hub = ManagedHub;
 	powwow.hub.HubClient = HubClient;

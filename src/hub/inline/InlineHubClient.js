@@ -3,7 +3,7 @@
 		define([ 'dejavu/Class', '../HubClient' ], factory);
 	}
 	else {
-		root.powwow.inline.InlineHubClient = factory(root.dejavu.Class, root.powwow.hub.HubClient);
+		root.powwow.hub.inline.InlineHubClient = factory(root.dejavu.Class, root.powwow.hub.HubClient);
 	}
 }(this, function(Class, HubClient) {
 

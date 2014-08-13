@@ -3,7 +3,7 @@
 		define([ 'dejavu/Class', '../Container' ], factory);
 	}
 	else {
-		root.powwow.inline.InlineContainer = factory(root.dejavu.Class, root.powwow.hub.Container);
+		root.powwow.hub.inline.InlineContainer = factory(root.dejavu.Class, root.powwow.hub.Container);
 	}
 }(this, function(Class, Container) {
 

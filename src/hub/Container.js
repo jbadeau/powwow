@@ -3,7 +3,7 @@
 		define([ 'dejavu/Interface' ], factory);
 	}
 	else {
-		root.powwow.Container = factory(root.dejavu.Interface);
+		root.powwow.hub.Container = factory(root.dejavu.Interface);
 	}
 }(this, function(Interface) {
 

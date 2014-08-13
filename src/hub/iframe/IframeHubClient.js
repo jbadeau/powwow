@@ -3,7 +3,7 @@
 		define([ 'dejavu/Class', '../HubClient' ], factory);
 	}
 	else {
-		root.powwow.iframe.IframeHubClient = factory(root.dejavu.Class, root.powwow.hub.HubClient);
+		root.powwow.hub.iframe.IframeHubClient = factory(root.dejavu.Class, root.powwow.hub.HubClient);
 	}
 }(this, function(Class, HubClient) {
 
