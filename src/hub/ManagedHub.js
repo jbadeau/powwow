@@ -1,4 +1,4 @@
-define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Errors, msgs) {
+define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 
 	'use strict';
 
@@ -8,13 +8,11 @@ define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Err
 
 		$implements : Hub,
 
-		parameters : null,
+		_parameters : null,
 
-		bus : null,
+		_connected : false,
 
-		connected : false,
-
-		containers : null,
+		_containers : null,
 
 		/**
 		 * Create a new ManagedHub instance
@@ -72,10 +70,9 @@ define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Err
 			if (!params.onSubscribe) {
 				throw new Error(Errors.BAD_PARAMETERS);
 			}
-			this.parameters = params;
-			this.bus = msgs.bus();
-			this.connected = true;
-			this.containers = {};
+			this._parameters = params;
+			this._connected = true;
+			this._containers = {};
 		},
 
 		/**
@@ -122,6 +119,16 @@ define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Err
 		 *             if one of the parameters, e.g. the topic, is invalid
 		 */
 		subscribeForClient : function(container, topic, containerSubID) {
+			this._assertConnection();
+			// check subscribe permission
+			if (this.invokeOnSubscribe(topic, container)) {
+				// return ManagedHub's subscriptionID for this subscription
+				return this._subscribe(topic, this._sendToClient, this, {
+					c : container,
+					sid : containerSubID
+				});
+			}
+			throw new Error(Errors.NOT_ALLOWED);
 		},
 
 		/**
@@ -226,12 +233,12 @@ define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Err
 		 *             if this.isConnected() returns false
 		 */
 		addContainer : function(container) {
-			this.assertConnection();
+			this._assertConnection();
 			var containerId = container.getClientID();
-			if (this.containers[containerId]) {
+			if (this._containers[containerId]) {
 				throw new Error(Errors.DUPLICATE);
 			}
-			this.containers[containerId] = container;
+			this._containers[containerId] = container;
 		},
 
 		/**
@@ -248,6 +255,12 @@ define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Err
 		 */
 		removeContainer : function(container) {
 		},
+
+		/*
+		 * ---------------------------------------------------------------------
+		 * powwow.hub.Hub
+		 * ---------------------------------------------------------------------
+		 */
 
 		/**
 		 * @see {powwow.hub.Hub#subscribe}
@@ -271,7 +284,7 @@ define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Err
 		 * @see {powwow.hub.Hub#isConnected}
 		 */
 		isConnected : function() {
-			return this.connected;
+			return this._connected;
 		},
 
 		/**
@@ -298,10 +311,267 @@ define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Err
 		getParameters : function() {
 		},
 
-		assertConnection : function() {
+		/*
+		 * ---------------------------------------------------------------------
+		 * private
+		 * ---------------------------------------------------------------------
+		 */
+
+		_assertConnection : function() {
 			if (!this.isConnected()) {
 				throw new Error(Errors.DISCONNECTED);
 			}
+		},
+
+		_sendToClient : function(topic, data, sd, pcont) {
+			if (!this.isConnected()) {
+				return;
+			}
+			if (this._invokeOnPublish(topic, data, pcont, sd.c)) {
+				sd.c.sendToClient(topic, data, sd.sid);
+			}
+		},
+
+		_assertConn : function() {
+			if (!this.isConnected()) {
+				throw new Error(OpenAjax.hub.Error.Disconnected);
+			}
+		},
+
+		_assertPubTopic : function(topic) {
+			if (!topic || topic === "" || (topic.indexOf("*") != -1) || (topic.indexOf("..") != -1) || (topic.charAt(0) == ".") || (topic.charAt(topic.length - 1) == ".")) {
+				throw new Error(OpenAjax.hub.Error.BadParameters);
+			}
+		},
+
+		_assertSubTopic : function(topic) {
+			if (!topic) {
+				throw new Error(OpenAjax.hub.Error.BadParameters);
+			}
+			var path = topic.split(".");
+			var len = path.length;
+			for (var i = 0; i < len; i++) {
+				var p = path[i];
+				if ((p === "") || ((p.indexOf("*") != -1) && (p != "*") && (p != "**"))) {
+					throw new Error(OpenAjax.hub.Error.BadParameters);
+				}
+				if ((p == "**") && (i < len - 1)) {
+					throw new Error(OpenAjax.hub.Error.BadParameters);
+				}
+			}
+		},
+
+		_invokeOnComplete : function(func, scope, item, success, errorCode) {
+			if (func) { // onComplete is optional
+				try {
+					scope = scope || window;
+					func.call(scope, item, success, errorCode);
+				}
+				catch (e) {
+					OpenAjax.hub._debugger();
+					this._log("caught error from onComplete callback: " + e.message);
+				}
+			}
+		},
+
+		_invokeOnPublish : function(topic, data, pcont, scont) {
+			try {
+				return this._p.onPublish.call(this._scope, topic, data, pcont, scont);
+			}
+			catch (e) {
+				OpenAjax.hub._debugger();
+				this._log("caught error from onPublish callback to constructor: " + e.message);
+			}
+			return false;
+		},
+
+		_invokeOnSubscribe : function(topic, container) {
+			try {
+				return this._p.onSubscribe.call(this._scope, topic, container);
+			}
+			catch (e) {
+				OpenAjax.hub._debugger();
+				this._log("caught error from onSubscribe callback to constructor: " + e.message);
+			}
+			return false;
+		},
+
+		_invokeOnUnsubscribe : function(container, managerSubID) {
+			if (this._onUnsubscribe) {
+				var topic = managerSubID.slice(0, managerSubID.lastIndexOf("."));
+				try {
+					this._onUnsubscribe.call(this._scope, topic, container);
+				}
+				catch (e) {
+					OpenAjax.hub._debugger();
+					this._log("caught error from onUnsubscribe callback to constructor: " + e.message);
+				}
+			}
+		},
+
+		_subscribe : function(topic, onData, scope, subscriberData) {
+			var handle = topic + "." + this._seq;
+			var sub = {
+				scope : scope,
+				cb : onData,
+				data : subscriberData,
+				sid : this._seq++
+			};
+			var path = topic.split(".");
+			this._recursiveSubscribe(this._subscriptions, path, 0, sub);
+			return handle;
+		},
+
+		_recursiveSubscribe : function(tree, path, index, sub) {
+			var token = path[index];
+			if (index == path.length) {
+				sub.next = tree.s;
+				tree.s = sub;
+			}
+			else {
+				if (typeof tree.c == "undefined") {
+					tree.c = {};
+				}
+				if (typeof tree.c[token] == "undefined") {
+					tree.c[token] = {
+						c : {},
+						s : null
+					};
+					this._recursiveSubscribe(tree.c[token], path, index + 1, sub);
+				}
+				else {
+					this._recursiveSubscribe(tree.c[token], path, index + 1, sub);
+				}
+			}
+		},
+
+		_publish : function(topic, data, pcont) {
+			// if we are currently handling a publish event, then queue this
+			// request
+			// and handle later, one by one
+			if (this._isPublishing) {
+				this._pubQ.push({
+					t : topic,
+					d : data,
+					p : pcont
+				});
+				return;
+			}
+
+			this._safePublish(topic, data, pcont);
+
+			while (this._pubQ.length > 0) {
+				var pub = this._pubQ.shift();
+				this._safePublish(pub.t, pub.d, pub.p);
+			}
+		},
+
+		_safePublish : function(topic, data, pcont) {
+			this._isPublishing = true;
+			var path = topic.split(".");
+			this._recursivePublish(this._subscriptions, path, 0, topic, data, pcont);
+			this._isPublishing = false;
+		},
+
+		_recursivePublish : function(tree, path, index, name, msg, pcont) {
+			if (typeof tree != "undefined") {
+				var node;
+				if (index == path.length) {
+					node = tree;
+				}
+				else {
+					this._recursivePublish(tree.c[path[index]], path, index + 1, name, msg, pcont);
+					this._recursivePublish(tree.c["*"], path, index + 1, name, msg, pcont);
+					node = tree.c["**"];
+				}
+				if (typeof node != "undefined") {
+					var sub = node.s;
+					while (sub) {
+						var sc = sub.scope;
+						var cb = sub.cb;
+						var d = sub.data;
+						if (typeof cb == "string") {
+							// get a function object
+							cb = sc[cb];
+						}
+						cb.call(sc, name, msg, d, pcont);
+						sub = sub.next;
+					}
+				}
+			}
+		},
+
+		_unsubscribe : function(subscriptionID) {
+			var path = subscriptionID.split(".");
+			var sid = path.pop();
+			if (!this._recursiveUnsubscribe(this._subscriptions, path, 0, sid)) {
+				throw new Error(OpenAjax.hub.Error.NoSubscription);
+			}
+		},
+
+		/**
+		 * @returns 'true' if properly unsubscribed; 'false' otherwise
+		 */
+		_recursiveUnsubscribe : function(tree, path, index, sid) {
+			if (typeof tree == "undefined") {
+				return false;
+			}
+
+			if (index < path.length) {
+				var childNode = tree.c[path[index]];
+				if (!childNode) {
+					return false;
+				}
+				this._recursiveUnsubscribe(childNode, path, index + 1, sid);
+				if (!childNode.s) {
+					for ( var x in childNode.c) {
+						return true;
+					}
+					delete tree.c[path[index]];
+				}
+			}
+			else {
+				var sub = tree.s;
+				var sub_prev = null;
+				var found = false;
+				while (sub) {
+					if (sid == sub.sid) {
+						found = true;
+						if (sub == tree.s) {
+							tree.s = sub.next;
+						}
+						else {
+							sub_prev.next = sub.next;
+						}
+						break;
+					}
+					sub_prev = sub;
+					sub = sub.next;
+				}
+				if (!found) {
+					return false;
+				}
+			}
+
+			return true;
+		},
+
+		_getSubscriptionObject : function(tree, path, index, sid) {
+			if (typeof tree != "undefined") {
+				if (index < path.length) {
+					var childNode = tree.c[path[index]];
+					return this._getSubscriptionObject(childNode, path, index + 1, sid);
+				}
+
+				var sub = tree.s;
+				while (sub) {
+					if (sid == sub.sid) {
+						return sub;
+					}
+					sub = sub.next;
+				}
+			}
+			return null;
 		}
 
 	});

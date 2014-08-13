@@ -1,11 +1,4 @@
-(function(root, factory) {
-	if (typeof define === 'function' && define.amd) {
-		define([ 'dejavu/Class', '../HubClient' ], factory);
-	}
-	else {
-		root.powwow.hub.inline.InlineHubClient = factory(root.dejavu.Class, root.powwow.hub.HubClient);
-	}
-}(this, function(Class, HubClient) {
+define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 
 	'use strict';
 
@@ -15,11 +8,15 @@
 
 		$implements : HubClient,
 
+		parameters : null,
+
+		container : null,
+
 		/**
 		 * Create a new InlineHubClient.
-		 *
+		 * 
 		 * @constructor
-		 *
+		 * 
 		 * @param {Object}
 		 *            params Parameters used to instantiate the HubClient. Once
 		 *            the constructor is called, the params object belongs to
@@ -39,31 +36,98 @@
 		 * @param {OpenAjax.hub.InlineContainer}
 		 *            params.InlineHubClient.container Specifies the
 		 *            InlineContainer to which this HubClient will connect
-		 *
+		 * 
 		 * @throws {OpenAjax.hub.Error.BadParameters}
 		 *             if any of the required parameters are missing
 		 */
 		initialize : function(params) {
+			if (!params) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!params.HubClient) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!params.HubClient.onSecurityAlert) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!params.InlineHubClient) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!params.InlineHubClient.container) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+
+			this.container = params.InlineHubClient.container;
 		},
 
-		/** ****************************************************************** */
-		/** HubClient interface methods */
-		/** ****************************************************************** */
+		/*
+		 * ---------------------------------------------------------------------
+		 * powwow.hub.HubClient
+		 * ---------------------------------------------------------------------
+		 */
 
-		connect : function(onComplete, scope) {
+		/**
+		 * @see {powwow.hub.HubClient#connect}
+		 */
+		connect : function() {
+			return this.container.connect(this);
 		},
 
-		disconnect : function(onComplete, scope) {
+		/**
+		 * @see {powwow.hub.HubClient#connect}
+		 */
+		disconnect : function() {
+			return this.container.disconnect(this);
 		},
 
+		/**
+		 * @see {powwow.hub.HubClient#getPartnerOrigin}
+		 */
 		getPartnerOrigin : function() {
 		},
 
+		/**
+		 * @see {powwow.hub.HubClient#getClientID}
+		 */
 		getClientID : function() {
+		},
+
+		/*
+		 * ---------------------------------------------------------------------
+		 * powwow.hub.Hub
+		 * ---------------------------------------------------------------------
+		 */
+
+		subscribe : function(topic, onData, scope, onComplete, subscriberData) {
+			return this.container.subscribe(topic, onData, scope, onComplete, subscriberData);
+		},
+
+		publish : function(topic, data) {
+			this.container.publish(topic, data);
+		},
+
+		unsubscribe : function(subscriptionID, onComplete, scope) {
+			this.container.unsubscribe(subscriptionID, onComplete, scope);
+		},
+
+		isConnected : function() {
+			return this.container.isConnected();
+		},
+
+		getScope : function() {
+			return scope;
+		},
+
+		getSubscriberData : function(subID) {
+			return this.container.getSubscriberData(subID);
+		},
+
+		getSubscriberScope : function(subID) {
+			return this.container.getSubscriberScope(subID);
 		}
 
 	});
 
 	return InlineHubClient;
 
-}));
+});

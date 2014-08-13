@@ -45,7 +45,7 @@
 		 * @throws {OpenAjax.hub.Error.Duplicate}
 		 *             if the HubClient is already connected
 		 */
-		connect : function(onComplete, scope) {
+		connect : function() {
 		},
 
 		/**
@@ -79,7 +79,7 @@
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if the HubClient is already disconnected
 		 */
-		disconnect : function(onComplete, scope) {
+		disconnect : function() {
 		},
 
 		/**

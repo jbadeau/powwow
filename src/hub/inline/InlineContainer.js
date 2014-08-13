@@ -1,4 +1,4 @@
-define([ 'dejavu/Class', '../Container' ], function(Class, Container) {
+define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Container, Errors) {
 
 	'use strict';
 
@@ -15,6 +15,8 @@ define([ 'dejavu/Class', '../Container' ], function(Class, Container) {
 		parameters : null,
 
 		connected : false,
+
+		client : null,
 
 		/**
 		 * Create a new Inline Container.
@@ -89,6 +91,12 @@ define([ 'dejavu/Class', '../Container' ], function(Class, Container) {
 			this.parameters = params;
 		},
 
+		/*
+		 * ---------------------------------------------------------------------
+		 * powwow.hub.Container
+		 * ---------------------------------------------------------------------
+		 */
+
 		/**
 		 * @see {powwow.hub.Container#sendToClient}
 		 */
@@ -135,9 +143,177 @@ define([ 'dejavu/Class', '../Container' ], function(Class, Container) {
 			return this.hub;
 		},
 
+		/*
+		 * ---------------------------------------------------------------------
+		 * powwow.hub.HubClient
+		 * ---------------------------------------------------------------------
+		 */
+
+		/**
+		 * @see {powwow.hub.HubClient#connect}
+		 */
+		connect : function(hubClient) {
+			return new Promise(function(resolve, reject) {
+				try {
+					if (this.connected) {
+						throw new Error(Errors.DUPLICATE);
+					}
+
+					this.connected = true;
+					this.client = hubClient;
+
+					if (this.parameters.Container.onConnect) {
+						this.parameters.Container.onConnect.call(window, this);
+					}
+					resolve(hubClient);
+				}
+				catch (error) {
+					reject(error);
+				}
+			}.bind(this));
+		},
+
+		/**
+		 * @see {powwow.hub.HubClient#disconnect}
+		 */
+		disconnect : function(hubClient) {
+			return new Promise(function(resolve, reject) {
+				try {
+					if (!this.connected) {
+						throw new Error(Errors.DISCONNECTED);
+					}
+
+					this.finishDisconnect();
+
+					if (this.parameters.Container.onDisconnect) {
+						this.parameters.Container.onDisconnect.call(window, this);
+					}
+
+					resolve(hubClient);
+				}
+				catch (error) {
+					reject(error);
+				}
+			}.bind(this));
+		},
+
+		/*
+		 * ---------------------------------------------------------------------
+		 * powwow.hub.Hub
+		 * ---------------------------------------------------------------------
+		 */
+
+		/**
+		 * @see {powwow.hub.Hub#subscribe}
+		 */
+		subscribe : function(topic, onData, scope, onComplete, subscriberData) {
+			this.assertConnection();
+			assertSubTopic(topic);
+			if (!onData) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+
+			var subID = "" + subIndex++;
+			var success = false;
+			var msg = null;
+			try {
+				var handle = hub.subscribeForClient(this, topic, subID);
+				success = true;
+			}
+			catch (e) {
+				// failure
+				subID = null;
+				msg = e.message;
+			}
+
+			scope = scope || window;
+			if (success) {
+				subs[subID] = {
+					h : handle,
+					cb : onData,
+					sc : scope,
+					d : subscriberData
+				};
+			}
+
+			invokeOnComplete(onComplete, scope, subID, success, msg);
+			return subID;
+		},
+
+		/**
+		 * @see {powwow.hub.Hub#publish}
+		 */
+		publish : function(topic, data) {
+			assertConn();
+			assertPubTopic(topic);
+			hub.publishForClient(this, topic, data);
+		},
+
+		/**
+		 * @see {powwow.hub.Hub#unsubscribe}
+		 */
+		unsubscribe : function(subscriptionID, onComplete, scope) {
+			assertConn();
+			if (typeof subscriptionID === "undefined" || subscriptionID === null) {
+				throw new Error(OpenAjax.hub.Error.BadParameters);
+			}
+			var sub = subs[subscriptionID];
+			if (!sub) {
+				throw new Error(OpenAjax.hub.Error.NoSubscription);
+			}
+			hub.unsubscribeForClient(this, sub.h);
+			delete subs[subscriptionID];
+
+			invokeOnComplete(onComplete, scope, subscriptionID, true);
+		},
+
+		/**
+		 * @see {powwow.hub.Hub#getSubscriberData}
+		 */
+		getSubscriberData : function(subID) {
+			assertConn();
+			return getSubscription(subID).d;
+		},
+
+		/**
+		 * @see {powwow.hub.Hub#getSubscriberScope}
+		 */
+		getSubscriberScope : function(subID) {
+			assertConn();
+			return getSubscription(subID).sc;
+		},
+
+		/*
+		 * ---------------------------------------------------------------------
+		 * private
+		 * ---------------------------------------------------------------------
+		 */
 		init : function() {
 			this.hub.addContainer(this);
 			return this.addImport().then(this.addContent.bind(this));
+		},
+
+		assertConnection : function assertConn() {
+			if (!this.connected) {
+				throw new Error(Errors.DISCONNECTED);
+			}
+		},
+
+		assertSubTopic : function(topic) {
+			if (!topic) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			var path = topic.split(".");
+			var len = path.length;
+			for (var i = 0; i < len; i++) {
+				var p = path[i];
+				if ((p === "") || ((p.indexOf("*") != -1) && (p != "*") && (p != "**"))) {
+					throw new Error(Errors.BAD_PARAMETERS);
+				}
+				if ((p == "**") && (i < len - 1)) {
+					throw new Error(Errors.BAD_PARAMETERS);
+				}
+			}
 		},
 
 		addImport : function() {
