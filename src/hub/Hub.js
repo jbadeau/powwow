@@ -13,55 +13,9 @@
 
 		$name : 'Hub',
 
-		$constants : {
-
-			/**
-			 * Either a required argument is missing or an invalid argument was
-			 * provided
-			 */
-			ERROR_BAD_PARAMETERS : "BAD_PARAMETERS",
-
-			// The specified hub has been disconnected and cannot perform the
-			// requested operation:
-			ERROR_DISCONNECTED : "DISCONNECTED",
-
-			// Container with specified ID already exists:
-			ERROR_DUPLICATE : "DUPLICATE",
-
-			// The specified ManagedHub has no such Container (or it has been
-			// removed)
-			ERROR_NO_CONTAINER : "NO_CONTAINER",
-
-			// The specified ManagedHub or Container has no such subscription
-			ERROR_NO_SUBSCRIPTION : "NO_SUBSCRIPTION",
-
-			// Permission denied by manager's security policy
-			ERROR_NOT_ALLOWED : "NOT_ALLOWED",
-
-			// Wrong communications protocol identifier provided by Container or
-			// HubClient
-			ERROR_WRONG_PROTOCOL : "WRONG_PROTOCOL",
-
-			// A 'tunnelURI' param was specified, but current browser does not
-			// support security features
-			ERROR_INCOMPATIBLE_BROWSER : "INCOMPATIBLE_BROWSER",
-
-			// Container did not load (possible frame phishing attack)
-			ALERT_LOAD_TIMEOUT : "LOAD_TIMEOUT",
-
-			// Hub suspects a frame phishing attack against the specified
-			// container
-			ALERT_FRAME_PHISH : "FRAME_PHISH",
-
-			// Hub detected a message forgery that purports to come to a
-			// specified container
-			ALERT_FORGED_MESSAGE : "FORGED_MESSAGE"
-
-		},
-
 		/**
 		 * Subscribe to a topic.
-		 *
+		 * 
 		 * @param {String}
 		 *            topic A valid topic string. MAY include wildcards.
 		 * @param {Function}
@@ -78,12 +32,12 @@
 		 *            [subscriberData] Client application provides this data,
 		 *            which is handed back to the client application in the
 		 *            subscriberData parameter of the onData callback function.
-		 *
+		 * 
 		 * @returns subscriptionID Identifier representing the subscription.
 		 *          This identifier is an arbitrary ID string that is unique
 		 *          within this Hub instance
 		 * @type {String}
-		 *
+		 * 
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.BadParameters}
@@ -94,14 +48,14 @@
 
 		/**
 		 * Publish an event on a topic
-		 *
+		 * 
 		 * @param {String}
 		 *            topic A valid topic string. MUST NOT include wildcards.
 		 * @param {*}
 		 *            data Valid publishable data. To be portable across
 		 *            different Container implementations, this value SHOULD be
 		 *            serializable as JSON.
-		 *
+		 * 
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.BadParameters}
@@ -114,7 +68,7 @@
 
 		/**
 		 * Unsubscribe from a subscription
-		 *
+		 * 
 		 * @param {String}
 		 *            subscriptionID A subscriptionID returned by
 		 *            Hub.subscribe()
@@ -125,7 +79,7 @@
 		 *            [scope] When onComplete callback function is invoked, the
 		 *            JavaScript "this" keyword refers to this scope object. If
 		 *            no scope is provided, default is window.
-		 *
+		 * 
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.NoSubscription}
@@ -137,10 +91,10 @@
 		/**
 		 * Return true if this Hub instance is in the Connected state. Else
 		 * returns false.
-		 *
+		 * 
 		 * This function can be called even if the Hub is not in a CONNECTED
 		 * state.
-		 *
+		 * 
 		 * @returns Boolean
 		 * @type {Boolean}
 		 */
@@ -150,10 +104,10 @@
 		/**
 		 * Returns the scope associated with this Hub instance and which will be
 		 * used with callback functions.
-		 *
+		 * 
 		 * This function can be called even if the Hub is not in a CONNECTED
 		 * state.
-		 *
+		 * 
 		 * @returns scope object
 		 * @type {Object}
 		 */
@@ -163,13 +117,13 @@
 		/**
 		 * Returns the subscriberData parameter that was provided when
 		 * Hub.subscribe was called.
-		 *
+		 * 
 		 * @param {String}
 		 *            subscriptionID The subscriberID of a subscription
-		 *
+		 * 
 		 * @returns subscriberData
 		 * @type {*}
-		 *
+		 * 
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.NoSubscription}
@@ -182,13 +136,13 @@
 		 * Returns the scope associated with a specified subscription. This
 		 * scope will be used when invoking the 'onData' callback supplied to
 		 * Hub.subscribe().
-		 *
+		 * 
 		 * @param {String}
 		 *            subscriberID The subscriberID of a subscription
-		 *
+		 * 
 		 * @returns scope
 		 * @type {*}
-		 *
+		 * 
 		 * @throws {OpenAjax.hub.Error.Disconnected}
 		 *             if this Hub instance is not in CONNECTED state
 		 * @throws {OpenAjax.hub.Error.NoSubscription}
@@ -199,7 +153,7 @@
 
 		/**
 		 * Returns the params object associated with this Hub instance.
-		 *
+		 * 
 		 * @returns params The params object associated with this Hub instance
 		 * @type {Object}
 		 */
