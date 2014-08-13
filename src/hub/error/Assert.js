@@ -74,7 +74,7 @@ define([ 'dejavu/Class', 'mout/lang' ], function(Class, lang) {
 				return stringValue;
 			},
 
-			assertArgument : function(argument, msg) {
+			argumentNotUndefinedOrNull : function(argument, msg) {
 				(argument !== undefined && argument !== null) || this._fail(msg || "", "required argument is missing or an invalid argument was provided");
 			},
 
