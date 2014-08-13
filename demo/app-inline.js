@@ -17,7 +17,7 @@ define([ 'powwow/hub/inline/InlineHubClient' ], function(InlineHubClient) {
 	})
 
 	.then(function(hubClient) {
-		return hubClient.subscribe('org.example.topics.textmessage', function onData(topic, publisherData, subscriberData) {
+		return hubClient.subscribe('org.example.topics.textmessage', function(topic, publisherData, subscriberData) {
 			console.info('received topic ' + topic + ' with published data ' + publisherData + ' and subscriber data ' + subscriberData);
 		});
 	})

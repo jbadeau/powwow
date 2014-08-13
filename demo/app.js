@@ -64,5 +64,12 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 			uri : "/powwow/demo/index-iframe.html",
 		}
 	});
+	
+	// publish
+	setInterval(function() {
+		managedHub.publish('org.example.topics.textmessage', {
+			"foo" : "bar"
+		});
+	}, 1000);
 
 });

@@ -15,9 +15,13 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		_containers : null,
 
 		_subscriptions : null,
-		
-		_sequence: null,
 
+		_sequence : null,
+
+		_isPublishing : false,
+		
+		_publishQ : null,
+		
 		/**
 		 * Create a new ManagedHub instance
 		 * 
@@ -77,8 +81,12 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 			this._parameters = params;
 			this._connected = true;
 			this._containers = {};
-			this._subscriptions = { c:{}, s:null };
+			this._subscriptions = {
+				c : {},
+				s : null
+			};
 			this._sequence = 0;
+			this._publishQ = [];
 		},
 
 		/**
@@ -278,6 +286,9 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		 * @see {powwow.hub.Hub#publish}
 		 */
 		publish : function(topic, data) {
+			this._assertConnection();
+			this._assertPubTopic(topic);
+			this._publish(topic, data, null);
 		},
 
 		/**
@@ -340,19 +351,19 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 
 		_assertConn : function() {
 			if (!this.isConnected()) {
-				throw new Error(OpenAjax.hub.Error.Disconnected);
+				throw new Error(Errors.DISCONNECTED);
 			}
 		},
 
 		_assertPubTopic : function(topic) {
 			if (!topic || topic === "" || (topic.indexOf("*") != -1) || (topic.indexOf("..") != -1) || (topic.charAt(0) == ".") || (topic.charAt(topic.length - 1) == ".")) {
-				throw new Error(OpenAjax.hub.Error.BadParameters);
+				throw new Error(Errors.BAD_PARAMETERS);
 			}
 		},
 
 		_assertSubTopic : function(topic) {
 			if (!topic) {
-				throw new Error(OpenAjax.hub.Error.BadParameters);
+				throw new Error(Errors.BAD_PARAMETERS);
 			}
 			var path = topic.split(".");
 			var len = path.length;
@@ -456,7 +467,7 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 			// request
 			// and handle later, one by one
 			if (this._isPublishing) {
-				this._pubQ.push({
+				this._publishQ.push({
 					t : topic,
 					d : data,
 					p : pcont
@@ -466,8 +477,8 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 
 			this._safePublish(topic, data, pcont);
 
-			while (this._pubQ.length > 0) {
-				var pub = this._pubQ.shift();
+			while (this._publishQ.length > 0) {
+				var pub = this._publishQ.shift();
 				this._safePublish(pub.t, pub.d, pub.p);
 			}
 		},

@@ -8,19 +8,19 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 
 		$implements : Container,
 
-		hub : null,
+		_hub : null,
 
-		clientID : null,
+		_clientID : null,
 
-		parameters : null,
+		_parameters : null,
 
-		connected : false,
+		_connected : false,
 
-		client : null,
+		_client : null,
 
-		subscriptionIndex : null,
-		
-		subscriptions : null,
+		_subscriptionIndex : null,
+
+		_subscriptions : null,
 
 		/**
 		 * Create a new Inline Container.
@@ -90,11 +90,11 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 				throw new Error(Errors.BAD_PARAMETERS);
 			}
 
-			this.hub = hub;
-			this.clientID = clientID;
-			this.parameters = params;
-			this.subscriptionIndex = 0;
-			this.subscriptions = [];
+			this._hub = hub;
+			this._clientID = clientID;
+			this._parameters = params;
+			this._subscriptionIndex = 0;
+			this._subscriptions = [];
 		},
 
 		/*
@@ -106,7 +106,11 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 		/**
 		 * @see {powwow.hub.Container#sendToClient}
 		 */
-		sendToClient : function(topic, data, containerSubscriptionId) {
+		sendToClient : function(topic, data, subscriptionID) {
+			if (this._connected) {
+				var sub = this._subscriptions[subscriptionID];
+				sub.cb.call(sub.sc, topic, data, sub.d);
+			}
 		},
 
 		/**
@@ -119,14 +123,14 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 		 * @see {powwow.hub.Container#isConnected}
 		 */
 		isConnected : function() {
-			return this.connected;
+			return this._connected;
 		},
 
 		/**
 		 * @see {powwow.hub.Container#getClientID}
 		 */
 		getClientID : function() {
-			return this.clientID;
+			return this._clientID;
 		},
 
 		/**
@@ -139,14 +143,14 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 		 * @see {powwow.hub.Container#getParameters}
 		 */
 		getParameters : function() {
-			return this.parameters;
+			return this._parameters;
 		},
 
 		/**
 		 * @see {powwow.hub.Container#getHub}
 		 */
 		getHub : function() {
-			return this.hub;
+			return this._hub;
 		},
 
 		/*
@@ -161,15 +165,15 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 		connect : function(hubClient) {
 			return new Promise(function(resolve, reject) {
 				try {
-					if (this.connected) {
+					if (this._connected) {
 						throw new Error(Errors.DUPLICATE);
 					}
 
-					this.connected = true;
-					this.client = hubClient;
+					this._connected = true;
+					this._client = hubClient;
 
-					if (this.parameters.Container.onConnect) {
-						this.parameters.Container.onConnect.call(window, this);
+					if (this._parameters.Container.onConnect) {
+						this._parameters.Container.onConnect.call(window, this);
 					}
 					resolve(hubClient);
 				}
@@ -185,14 +189,14 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 		disconnect : function(hubClient) {
 			return new Promise(function(resolve, reject) {
 				try {
-					if (!this.connected) {
+					if (!this._connected) {
 						throw new Error(Errors.DISCONNECTED);
 					}
 
 					this.finishDisconnect();
 
-					if (this.parameters.Container.onDisconnect) {
-						this.parameters.Container.onDisconnect.call(window, this);
+					if (this._parameters.Container.onDisconnect) {
+						this._parameters.Container.onDisconnect.call(window, this);
 					}
 
 					resolve(hubClient);
@@ -222,16 +226,16 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 						throw new Error(Errors.BAD_PARAMETERS);
 					}
 
-					var subscriptionID = "" + this.subscriptionIndex++;
+					var subscriptionID = "" + this._subscriptionIndex++;
 					var success = false;
 					var msg = null;
 
-					var handle = this.hub.subscribeForClient(this, topic, subscriptionID);
+					var handle = this._hub.subscribeForClient(this, topic, subscriptionID);
 					success = true;
 
 					scope = scope || window;
 					if (success) {
-						this.subscriptions[subscriptionID] = {
+						this._subscriptions[subscriptionID] = {
 							h : handle,
 							cb : onData,
 							sc : scope,
@@ -295,12 +299,12 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 		 * ---------------------------------------------------------------------
 		 */
 		init : function() {
-			this.hub.addContainer(this);
+			this._hub.addContainer(this);
 			return this.addImport().then(this.addContent.bind(this));
 		},
 
 		assertConnection : function assertConn() {
-			if (!this.connected) {
+			if (!this._connected) {
 				throw new Error(Errors.DISCONNECTED);
 			}
 		},
