@@ -1,4 +1,4 @@
-define([ 'powwow/hub/ManagedHub', 'powwow/hub/iframe/IframeContainer' ], function(ManagedHub, IframeContainer) {
+define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/hub/iframe/IframeContainer' ], function(ManagedHub, InlineContainer, IframeContainer) {
 
 	var managedHub = new ManagedHub({
 		onPublish : function(topic, data, publishContainer, subscribeContainer) {
@@ -22,7 +22,7 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/iframe/IframeContainer' ], functio
 
 	mashupNode.appendChild(inlineContainerNode);
 
-	var inlineContainer = new OpenAjax.hub.InlineContainer(managedHub, "inlineClient", {
+	window.inlineContainer = new InlineContainer(managedHub, "inlineClient", {
 		Container : {
 			onConnect : function(container) {
 			},
@@ -32,10 +32,12 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/iframe/IframeContainer' ], functio
 			}
 		},
 		InlineContainer : {
-			parent : iframeContainerNode,
-			uri : "inline.html",
+			parent : inlineContainerNode,
+			uri : "/powwow/demo/index-inline.html",
 		}
 	});
+	
+	inlineContainer.init();
 
 	// iframe container
 
@@ -43,7 +45,7 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/iframe/IframeContainer' ], functio
 
 	mashupNode.appendChild(iframeContainerNode);
 
-	var iframeContainer = new IframeContainer(managedHub, "iframeClient", {
+	window.iframeContainer = new IframeContainer(managedHub, "iframeClient", {
 		Container : {
 			onConnect : function(container) {
 			},
@@ -59,7 +61,7 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/iframe/IframeContainer' ], functio
 					border : "black solid 1px"
 				}
 			},
-			uri : "iframe.html",
+			uri : "/powwow/demo/index-iframe.html",
 		}
 	});
 

@@ -1,11 +1,4 @@
-(function(root, factory) {
-	if (typeof define === 'function' && define.amd) {
-		define([ 'dejavu/Class', '../Container' ], factory);
-	}
-	else {
-		root.powwow.hub.inline.InlineContainer = factory(root.dejavu.Class, root.powwow.hub.Container);
-	}
-}(this, function(Class, Container) {
+define([ 'dejavu/Class', '../Container' ], function(Class, Container) {
 
 	'use strict';
 
@@ -15,16 +8,24 @@
 
 		$implements : Container,
 
+		hub : null,
+
+		clientID : null,
+
+		parameters : null,
+
+		connected : false,
+
 		/**
 		 * Create a new Inline Container.
-		 *
+		 * 
 		 * @constructor
-		 *
+		 * 
 		 * InlineContainer implements the Container interface to provide a
 		 * container that places components within the same browser frame as the
 		 * main mashup application. As such, this container does not isolate
 		 * client components into secure sandboxes.
-		 *
+		 * 
 		 * @param {OpenAjax.hub.ManagedHub}
 		 *            hub Managed Hub instance to which this Container belongs
 		 * @param {String}
@@ -57,7 +58,7 @@
 		 * @param {Function}
 		 *            [params.Container.log] Optional logger function. Would be
 		 *            used to log to console.log or equivalent.
-		 *
+		 * 
 		 * @throws {OpenAjax.hub.Error.BadParameters}
 		 *             if required params are not present or null
 		 * @throws {OpenAjax.hub.Error.Duplicate}
@@ -67,35 +68,113 @@
 		 *             if ManagedHub is not connected
 		 */
 		initialize : function(hub, clientID, params) {
+			if (!hub) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!clientID) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!params) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!params.Container) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			if (!params.Container.onSecurityAlert) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+
+			this.hub = hub;
+			this.clientID = clientID;
+			this.parameters = params;
 		},
 
-		/** ****************************************************************** */
-		/** Container interface methods */
-		/** ****************************************************************** */
-
+		/**
+		 * @see {powwow.hub.Container#sendToClient}
+		 */
 		sendToClient : function(topic, data, containerSubscriptionId) {
 		},
 
+		/**
+		 * @see {powwow.hub.Container#remove}
+		 */
 		remove : function() {
 		},
 
+		/**
+		 * @see {powwow.hub.Container#isConnected}
+		 */
 		isConnected : function() {
+			return this.connected;
 		},
 
+		/**
+		 * @see {powwow.hub.Container#getClientID}
+		 */
 		getClientID : function() {
+			return this.clientID;
 		},
 
+		/**
+		 * @see {powwow.hub.Container#getPartnerOrigin}
+		 */
 		getPartnerOrigin : function() {
 		},
 
+		/**
+		 * @see {powwow.hub.Container#getParameters}
+		 */
 		getParameters : function() {
+			return this.parameters;
 		},
 
+		/**
+		 * @see {powwow.hub.Container#getHub}
+		 */
 		getHub : function() {
+			return this.hub;
+		},
+
+		init : function() {
+			this.hub.addContainer(this);
+			return this.addImport().then(this.addContent.bind(this));
+		},
+
+		addImport : function() {
+			return new Promise(function(resolve, reject) {
+				var link = document.createElement('link');
+				link.rel = 'import';
+				link.href = this.getParameters().InlineContainer.uri;
+				link.onload = function(event) {
+					resolve();
+				};
+				link.onerror = function(error) {
+					reject(error);
+				};
+				// TODO require global document
+				document.head.appendChild(link);
+			}.bind(this));
+		},
+
+		addContent : function() {
+			return new Promise(function(resolve, reject) {
+				try {
+					// TODO require global document
+					// use a better link query
+					var link = document.querySelector('link[rel="import"]');
+					var template = link.import.querySelector('template');
+					var clone = document.importNode(template.content, true);
+					var shadow = this.getParameters().InlineContainer.parent.createShadowRoot();
+					shadow.appendChild(clone);
+				}
+				catch (error) {
+					reject(error);
+				}
+			}.bind(this));
 		}
 
 	});
 
 	return InlineContainer;
 
-}));
+});

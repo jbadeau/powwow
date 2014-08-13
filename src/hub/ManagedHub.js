@@ -1,4 +1,4 @@
-define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
+define([ 'dejavu/Class', './Hub', './Errors', 'msgs' ], function(Class, Hub, Errors, msgs) {
 
 	'use strict';
 
@@ -7,6 +7,14 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		$name : 'ManagedHub',
 
 		$implements : Hub,
+
+		parameters : null,
+
+		bus : null,
+
+		connected : false,
+
+		containers : null,
 
 		/**
 		 * Create a new ManagedHub instance
@@ -64,6 +72,10 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 			if (!params.onSubscribe) {
 				throw new Error(Errors.BAD_PARAMETERS);
 			}
+			this.parameters = params;
+			this.bus = msgs.bus();
+			this.connected = true;
+			this.containers = {};
 		},
 
 		/**
@@ -214,6 +226,12 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		 *             if this.isConnected() returns false
 		 */
 		addContainer : function(container) {
+			this.assertConnection();
+			var containerId = container.getClientID();
+			if (this.containers[containerId]) {
+				throw new Error(Errors.DUPLICATE);
+			}
+			this.containers[containerId] = container;
 		},
 
 		/**
@@ -253,6 +271,7 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		 * @see {powwow.hub.Hub#isConnected}
 		 */
 		isConnected : function() {
+			return this.connected;
 		},
 
 		/**
@@ -277,6 +296,12 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		 * @see {powwow.hub.Hub#getParameters}
 		 */
 		getParameters : function() {
+		},
+
+		assertConnection : function() {
+			if (!this.isConnected()) {
+				throw new Error(Errors.DISCONNECTED);
+			}
 		}
 
 	});
