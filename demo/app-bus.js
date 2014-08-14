@@ -1,18 +1,12 @@
-define(function(require) {
+define([ 'msgs/channels/exchange', 'msgs/channels/dispatchers/exchange', 'msgs/channels/dispatchers/unicast' ], function(msgs, exchangeDispatcher, unicastDispatcher) {
 
-	var msgs, exchangeDispatcher, unicastDispatcher, bus;
+	var hubBus = msgs.bus();
 
-	msgs = require('msgs/channels/exchange');
-
-	exchangeDispatcher = require('msgs/channels/dispatchers/exchange');
-
-	unicastDispatcher = require('msgs/channels/dispatchers/unicast');
-
-	hubBus = msgs.bus();
-
-	clientBus1 = hubBus.bus();
-	clientBus2 = hubBus.bus();
-	clientBus3 = hubBus.bus();
+	hubBus.topicExchangeChannel('outbound');
+	
+	var clientBus1 = hubBus.bus();
+	var clientBus2 = hubBus.bus();
+	var clientBus3 = hubBus.bus();
 
 	var listener = {
 		handle : function(message) {
@@ -35,15 +29,10 @@ define(function(require) {
 		}
 	}
 
-	hubBus.topicExchangeChannel('outbound');
-
 	clientBus1.subscribe('outbound!greeting.#', listener1);
 	clientBus2.subscribe('outbound!greeting.en.*', listener2);
 	clientBus3.subscribe('outbound!#.fr.#', listener3);
-	
-	clientBus2.unsubscribe('outbound', listener2);
-	
+
 	hubBus.send('outbound!greeting.en.us', 'hello');
-	// clientBus1.send('outbound!greeting', 'client1');
-	// clientBus2.send('outbound!greeting', 'client2');
+
 });

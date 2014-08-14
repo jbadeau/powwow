@@ -22,6 +22,8 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 
 		_subscriptions : null,
 
+		_bus : null,
+
 		/**
 		 * Create a new Inline Container.
 		 * 
@@ -95,6 +97,8 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 			this._parameters = params;
 			this._subscriptionIndex = 0;
 			this._subscriptions = [];
+
+			this._bus = this._hub.createChildBus();
 		},
 
 		/*
@@ -221,27 +225,27 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 			return new Promise(function(resolve, reject) {
 				try {
 					this.assertConnection();
-					this.assertSubTopic(topic);
 					if (!onData) {
 						throw new Error(Errors.BAD_PARAMETERS);
 					}
 
 					var subscriptionID = "" + this._subscriptionIndex++;
-					var success = false;
-					var msg = null;
 
-					var handle = this._hub.subscribeForClient(this, topic, subscriptionID);
-					success = true;
+					var listener = {
+						handle : onData
+					};
 
-					scope = scope || window;
-					if (success) {
-						this._subscriptions[subscriptionID] = {
-							h : handle,
-							cb : onData,
-							sc : scope,
-							d : subscriberData
-						};
-					}
+					this._subscriptions[subscriptionID] = {
+						channel : 'TOPIC_EXCHANGE',
+						topic : topic,
+						handler : listener,
+						data : subscriberData
+					};
+
+					var channelTopic = 'TOPIC_EXCHANGE!' + topic;
+					
+					this._bus.subscribe(channelTopic, listener);
+					
 					resolve(subscriptionID);
 				}
 				catch (error) {
@@ -303,29 +307,6 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 			return this.addImport().then(this.addContent.bind(this));
 		},
 
-		assertConnection : function assertConn() {
-			if (!this._connected) {
-				throw new Error(Errors.DISCONNECTED);
-			}
-		},
-
-		assertSubTopic : function(topic) {
-			if (!topic) {
-				throw new Error(Errors.BAD_PARAMETERS);
-			}
-			var path = topic.split(".");
-			var len = path.length;
-			for (var i = 0; i < len; i++) {
-				var p = path[i];
-				if ((p === "") || ((p.indexOf("*") != -1) && (p != "*") && (p != "**"))) {
-					throw new Error(Errors.BAD_PARAMETERS);
-				}
-				if ((p == "**") && (i < len - 1)) {
-					throw new Error(Errors.BAD_PARAMETERS);
-				}
-			}
-		},
-
 		addImport : function() {
 			return new Promise(function(resolve, reject) {
 				var link = document.createElement('link');
@@ -357,6 +338,29 @@ define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Containe
 					reject(error);
 				}
 			}.bind(this));
+		},
+
+		assertConnection : function assertConn() {
+			if (!this._connected) {
+				throw new Error(Errors.DISCONNECTED);
+			}
+		},
+
+		assertSubTopic : function(topic) {
+			if (!topic) {
+				throw new Error(Errors.BAD_PARAMETERS);
+			}
+			var path = topic.split(".");
+			var len = path.length;
+			for (var i = 0; i < len; i++) {
+				var p = path[i];
+				if ((p === "") || ((p.indexOf("*") != -1) && (p != "*") && (p != "**"))) {
+					throw new Error(Errors.BAD_PARAMETERS);
+				}
+				if ((p == "**") && (i < len - 1)) {
+					throw new Error(Errors.BAD_PARAMETERS);
+				}
+			}
 		}
 
 	});

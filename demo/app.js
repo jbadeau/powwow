@@ -41,6 +41,7 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 
 	// iframe container
 
+	/*
 	var iframeContainerNode = document.createElement("div");
 
 	mashupNode.appendChild(iframeContainerNode);
@@ -64,12 +65,13 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 			uri : "/powwow/demo/index-iframe.html",
 		}
 	});
+	*/
 	
 	// publish
 	setInterval(function() {
-		managedHub.publish('org.example.topics.textmessage', {
+		managedHub.publish('greeting.en.us', {
 			"foo" : "bar"
 		});
-	}, 1000);
+	}, 5000);
 
 });

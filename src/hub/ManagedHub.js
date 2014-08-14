@@ -1,4 +1,4 @@
-define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
+define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/exchange', 'msgs/channels/dispatchers/unicast', './Hub', './Errors', ], function(Class, msgs, exchangeDispatcher, unicastDispatcher, Hub, Errors) {
 
 	'use strict';
 
@@ -19,9 +19,11 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		_sequence : null,
 
 		_isPublishing : false,
-		
+
 		_publishQ : null,
-		
+
+		_bus : null,
+
 		/**
 		 * Create a new ManagedHub instance
 		 * 
@@ -87,6 +89,9 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 			};
 			this._sequence = 0;
 			this._publishQ = [];
+
+			this._bus = msgs.bus();
+			this._bus.topicExchangeChannel('TOPIC_EXCHANGE');
 		},
 
 		/**
@@ -270,6 +275,15 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		removeContainer : function(container) {
 		},
 
+		getBus : function() {
+			return this._bus;
+		},
+
+		createChildBus : function() {
+			var childBus = this._bus.bus();
+			return childBus;
+		},
+
 		/*
 		 * ---------------------------------------------------------------------
 		 * powwow.hub.Hub
@@ -287,8 +301,8 @@ define([ 'dejavu/Class', './Hub', './Errors' ], function(Class, Hub, Errors) {
 		 */
 		publish : function(topic, data) {
 			this._assertConnection();
-			this._assertPubTopic(topic);
-			this._publish(topic, data, null);
+			var channelTopic = 'TOPIC_EXCHANGE!' + topic;
+			this._bus.send(channelTopic, data);
 		},
 
 		/**
