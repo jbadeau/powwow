@@ -14,6 +14,26 @@
 		$name : 'Hub',
 
 		/**
+		 * Publish an event on a topic
+		 * 
+		 * @param {String}
+		 *            topic A valid topic string. MUST NOT include wildcards.
+		 * @param {*}
+		 *            data Valid publishable data. To be portable across
+		 *            different Container implementations, this value SHOULD be
+		 *            serializable as JSON.
+		 * 
+		 * @throws {OpenAjax.hub.Error.Disconnected}
+		 *             if this Hub instance is not in CONNECTED state
+		 * @throws {OpenAjax.hub.Error.BadParameters}
+		 *             if the topic cannot be published (e.g. contains wildcards
+		 *             or empty tokens) or if the data cannot be published (e.g.
+		 *             cannot be serialized as JSON)
+		 */
+		publish : function(topic, data) {
+		},
+
+		/**
 		 * Subscribe to a topic.
 		 * 
 		 * @param {String}
@@ -44,26 +64,6 @@
 		 *             if the topic is invalid (e.g. contains an empty token)
 		 */
 		subscribe : function(topic, onData, scope, onComplete, subscriberData) {
-		},
-
-		/**
-		 * Publish an event on a topic
-		 * 
-		 * @param {String}
-		 *            topic A valid topic string. MUST NOT include wildcards.
-		 * @param {*}
-		 *            data Valid publishable data. To be portable across
-		 *            different Container implementations, this value SHOULD be
-		 *            serializable as JSON.
-		 * 
-		 * @throws {OpenAjax.hub.Error.Disconnected}
-		 *             if this Hub instance is not in CONNECTED state
-		 * @throws {OpenAjax.hub.Error.BadParameters}
-		 *             if the topic cannot be published (e.g. contains wildcards
-		 *             or empty tokens) or if the data cannot be published (e.g.
-		 *             cannot be serialized as JSON)
-		 */
-		publish : function(topic, data) {
 		},
 
 		/**
