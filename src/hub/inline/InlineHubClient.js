@@ -12,51 +12,7 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 
 		container : null,
 
-		/**
-		 * Create a new InlineHubClient.
-		 * 
-		 * @constructor
-		 * 
-		 * @param {Object}
-		 *            params Parameters used to instantiate the HubClient. Once
-		 *            the constructor is called, the params object belongs to
-		 *            the HubClient. The caller MUST not modify it. The
-		 *            following are the pre-defined properties on params:
-		 * @param {Function}
-		 *            params.HubClient.onSecurityAlert Called when an attempted
-		 *            security breach is thwarted
-		 * @param {Object}
-		 *            [params.HubClient.scope] Whenever one of the HubClient's
-		 *            callback functions is called, references to "this" in the
-		 *            callback will refer to the scope object. If not provided,
-		 *            the default is window.
-		 * @param {Function}
-		 *            [params.HubClient.log] Optional logger function. Would be
-		 *            used to log to console.log or equivalent.
-		 * @param {OpenAjax.hub.InlineContainer}
-		 *            params.InlineHubClient.container Specifies the
-		 *            InlineContainer to which this HubClient will connect
-		 * 
-		 * @throws {OpenAjax.hub.Error.BadParameters}
-		 *             if any of the required parameters are missing
-		 */
 		initialize : function(params) {
-			if (!params) {
-				throw new Error(Errors.BAD_PARAMETERS);
-			}
-			if (!params.HubClient) {
-				throw new Error(Errors.BAD_PARAMETERS);
-			}
-			if (!params.HubClient.onSecurityAlert) {
-				throw new Error(Errors.BAD_PARAMETERS);
-			}
-			if (!params.InlineHubClient) {
-				throw new Error(Errors.BAD_PARAMETERS);
-			}
-			if (!params.InlineHubClient.container) {
-				throw new Error(Errors.BAD_PARAMETERS);
-			}
-
 			this.container = params.InlineHubClient.container;
 		},
 
@@ -70,7 +26,15 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 		 * @see {powwow.hub.HubClient#connect}
 		 */
 		connect : function() {
-			return this.container.connect(this);
+			return new Promise(function(resolve, reject) {
+				try {
+					this.container.connect(this);
+					resolve();
+				}
+				catch (error) {
+					reject(error);
+				}
+			}.bind(this));
 		},
 
 		/**

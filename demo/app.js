@@ -14,15 +14,15 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 		}
 	});
 
-	var mashupNode = document.getElementById("mashup");
+	var mashupNode = document.getElementById('mashup');
 
 	// inline container
 
-	var inlineContainerNode = document.createElement("div");
+	var inlineContainerNode = document.createElement('div');
 
 	mashupNode.appendChild(inlineContainerNode);
 
-	window.inlineContainer = new InlineContainer(managedHub, "inlineClient", {
+	window.inlineContainer = new InlineContainer(managedHub, 'inline', {
 		Container : {
 			onConnect : function(container) {
 			},
@@ -33,20 +33,20 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 		},
 		InlineContainer : {
 			parent : inlineContainerNode,
-			uri : "/powwow/demo/index-inline.html",
+			uri : '/powwow/demo/index-inline.html',
 		}
 	});
-	
+
 	inlineContainer.init();
 
 	// iframe container
 
 	/*
-	var iframeContainerNode = document.createElement("div");
+	var iframeContainerNode = document.createElement('div');
 
 	mashupNode.appendChild(iframeContainerNode);
 
-	window.iframeContainer = new IframeContainer(managedHub, "iframeClient", {
+	window.iframeContainer = new IframeContainer(managedHub, 'iframeClient', {
 		Container : {
 			onConnect : function(container) {
 			},
@@ -59,18 +59,18 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 			parent : iframeContainerNode,
 			iframeAttrs : {
 				style : {
-					border : "black solid 1px"
+					border : 'black solid 1px'
 				}
 			},
-			uri : "/powwow/demo/index-iframe.html",
+			uri : '/powwow/demo/index-iframe.html',
 		}
 	});
 	*/
-	
+
 	// publish
 	setInterval(function() {
 		managedHub.publish('greeting.en.us', {
-			"foo" : "bar"
+			'foo' : 'bar'
 		});
 	}, 5000);
 

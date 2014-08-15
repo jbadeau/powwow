@@ -18,10 +18,10 @@ define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/ex
 
 		initialize : function(parameters) {
 			this._parameters = parameters;
-			this._containers = new Map();
-			this._sequence = 0;
+			this._containers = {};
+			this._subscriptions = {};
 			this._bus = msgs.bus();
-			this._bus.topicExchangeChannel(this.$static.CHANNEL_DEFAULT);
+			this._bus.topicExchangeChannel(this.CHANNEL_DEFAULT);
 		},
 		disconnect : function() {
 			var containerId;
@@ -52,6 +52,10 @@ define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/ex
 			delete this._containers[containerId];
 		},
 
+		newBus : function() {
+			return this._bus.bus();
+		},
+
 		/*
 		 * ---------------------------------------------------------------------
 		 * powwow.hub.Hub
@@ -68,7 +72,13 @@ define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/ex
 		},
 
 		unregisterHandler : function(subscription) {
-		}
+		},
+
+		/*
+		 * ---------------------------------------------------------------------
+		 * private
+		 * ---------------------------------------------------------------------
+		 */
 
 	});
 

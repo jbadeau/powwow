@@ -32,7 +32,7 @@
 				this._parameters = parameters;
 				this._subscriptionIndex = 0;
 				this._subscriptions = [];
-				this._bus = this._hub.createChildBus();
+				this._bus = this._hub.newBus();
 			},
 
 			/*
@@ -41,7 +41,12 @@
 			 * ---------------------------------------------------------------------
 			 */
 
-			sendToClient : function(topic, data, subscriptionID) {
+			init : function() {
+				this._hub.addContainer(this);
+				return this._importClientContent().then(this._appendClientContent.bind(this));
+			},
+
+			sendToClient : function(topic, data, subscriptionId) {
 			},
 
 			remove : function() {
@@ -75,13 +80,15 @@
 			/**
 			 * @see {powwow.hub.HubClient#connect}
 			 */
-			connect : function(hubClient) {
+			connect : function(client) {
+				this._connected = true;
+				this._client = client;
 			},
 
 			/**
 			 * @see {powwow.hub.HubClient#disconnect}
 			 */
-			disconnect : function(hubClient) {
+			disconnect : function(client) {
 			},
 
 			/*
@@ -96,7 +103,7 @@
 			publish : function(topic, data) {
 			},
 
-			unsubscribe : function(subscriptionID, onComplete, scope) {
+			unsubscribe : function(subscriptionId, onComplete, scope) {
 			},
 
 			/*
@@ -104,15 +111,12 @@
 			 * private
 			 * ---------------------------------------------------------------------
 			 */
-			init : function() {
-				this._hub.addContainer(this);
-				return this.addImport().then(this.addContent.bind(this));
-			},
 
-			addImport : function() {
+			_importClientContent : function() {
 				return new Promise(function(resolve, reject) {
 					var link = global.document.createElement('link');
 					link.rel = 'import';
+					link.id = this._clientId;
 					link.href = this.getParameters().InlineContainer.uri;
 					link.onload = function(event) {
 						resolve();
@@ -124,14 +128,15 @@
 				}.bind(this));
 			},
 
-			addContent : function() {
+			_appendClientContent : function() {
 				return new Promise(function(resolve, reject) {
 					try {
-						var link = global.document.querySelector('link[rel="import"]');
-						var template = link.import.querySelector('template');
-						var clone = document.importNode(template.content, true);
-						var shadow = this.getParameters().InlineContainer.parent.createShadowRoot();
-						shadow.appendChild(clone);
+						var templateImport = global.document.querySelector('#' + this._clientId);
+						var template = templateImport.import
+						var templateNode = template.getElementById('inline');
+						var shadowNode = this._parameters.InlineContainer.parent.createShadowRoot();
+						var templateNodeClone = global.document.importNode(templateNode.content, true);
+						shadowNode.appendChild(templateNodeClone);
 					}
 					catch (error) {
 						reject(error);
