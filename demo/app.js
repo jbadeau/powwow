@@ -28,7 +28,7 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 			},
 			onDisconnect : function(container) {
 			},
-			onSecurityAlert : function onMHSecurityAlert(source, alertType) {
+			onSecurityAlert : function (source, alertType) {
 			}
 		},
 		InlineContainer : {
@@ -72,6 +72,6 @@ define([ 'powwow/hub/ManagedHub', 'powwow/hub/inline/InlineContainer', 'powwow/h
 		managedHub.publish('greeting.en.us', {
 			'foo' : 'bar'
 		});
-	}, 5000);
+	}, 1000);
 
 });

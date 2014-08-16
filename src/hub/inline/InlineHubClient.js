@@ -8,12 +8,13 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 
 		$implements : HubClient,
 
-		parameters : null,
+		_parameters : null,
 
-		container : null,
+		_container : null,
 
-		initialize : function(params) {
-			this.container = params.InlineHubClient.container;
+		initialize : function(parameters) {
+			this._parameters = parameters;
+			this._container = parameters.InlineHubClient.container;
 		},
 
 		/*
@@ -25,10 +26,10 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 		/**
 		 * @see {powwow.hub.HubClient#connect}
 		 */
-		connect : function() {
+		connect : function(client) {
 			return new Promise(function(resolve, reject) {
 				try {
-					this.container.connect(this);
+					this._container.connect(this);
 					resolve();
 				}
 				catch (error) {
@@ -41,7 +42,7 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 		 * @see {powwow.hub.HubClient#connect}
 		 */
 		disconnect : function() {
-			return this.container.disconnect(this);
+			return this._container.disconnect(this);
 		},
 
 		/**
@@ -62,32 +63,19 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 		 * ---------------------------------------------------------------------
 		 */
 
-		subscribe : function(topic, onData, scope, onComplete, subscriberData) {
-			return this.container.subscribe(topic, onData, scope, onComplete, subscriberData);
+		publish : function(topic, message) {
 		},
 
-		publish : function(topic, data) {
-			this.container.publish(topic, data);
+		subscribe : function(topic, onMessage, configuration) {
+			return this._container.subscribe(topic, onMessage, configuration);
 		},
 
-		unsubscribe : function(subscriptionID, onComplete, scope) {
-			this.container.unsubscribe(subscriptionID, onComplete, scope);
+		unsubscribe : function(subscription) {
+			return this._container.unsubscribe(unsubscribe);
 		},
 
 		isConnected : function() {
-			return this.container.isConnected();
-		},
-
-		getScope : function() {
-			return scope;
-		},
-
-		getSubscriberData : function(subID) {
-			return this.container.getSubscriberData(subID);
-		},
-
-		getSubscriberScope : function(subID) {
-			return this.container.getSubscriberScope(subID);
+			return this._container.isConnected();
 		}
 
 	});

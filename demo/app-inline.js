@@ -11,12 +11,13 @@ define([ 'powwow/hub/inline/InlineHubClient' ], function(InlineHubClient) {
 
 	});
 
-	hubClient.connect().then(function(hubClient) {
+	hubClient.connect()
+
+	.then(function() {
 		console.info('hubClient ' + hubClient + ' successfully connected');
-		return hubClient;
 	})
 
-	.then(function(hubClient) {
+	.then(function() {
 		return hubClient.subscribe('greeting.#', function(message) {
 			console.info(JSON.stringify(message));
 			//console.info('received topic ' + topic + ' with published data ' + publisherData + ' and subscriber data ' + subscriberData);

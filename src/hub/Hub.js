@@ -10,16 +10,13 @@ define([ 'dejavu/Interface' ], function(Interface) {
 			CHANNEL_DEFAULT : 'powwow.channel.default'
 		},
 
-		send : function(address, message, replyHandler) {
+		publish : function(topic, message) {
 		},
 
-		publish : function(address, message) {
+		subscribe : function(topic, onMessage, configuration) {
 		},
 
-		registerHandler : function(address, handler) {
-		},
-
-		unregisterHandler : function(subscription) {
+		unsubscribe : function(subscription) {
 		}
 
 	});

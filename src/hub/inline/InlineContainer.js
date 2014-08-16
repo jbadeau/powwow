@@ -1,6 +1,6 @@
 (function(global) {
 
-	define([ 'dejavu/Class', '../Container', '../Errors' ], function(Class, Container, Errors) {
+	define([ 'dejavu/Class', '../Container', '../Hub', '../HubClient', '../Errors' ], function(Class, Container, Hub, HubClient, Errors) {
 
 		'use strict';
 
@@ -8,7 +8,7 @@
 
 			$name : 'InlineContainer',
 
-			$implements : Container,
+			$implements : [ Container, Hub, HubClient ],
 
 			_hub : null,
 
@@ -20,7 +20,7 @@
 
 			_client : null,
 
-			_subscriptionIndex : null,
+			_subscriptionIndex : 0,
 
 			_subscriptions : null,
 
@@ -30,8 +30,7 @@
 				this._hub = hub;
 				this._clientId = clientId;
 				this._parameters = parameters;
-				this._subscriptionIndex = 0;
-				this._subscriptions = [];
+				this._subscriptions = {};
 				this._bus = this._hub.newBus();
 			},
 
@@ -43,7 +42,9 @@
 
 			init : function() {
 				this._hub.addContainer(this);
-				return this._importClientContent().then(this._appendClientContent.bind(this));
+				return this._importClientContent()
+
+				.then(this._appendClientContent.bind(this));
 			},
 
 			sendToClient : function(topic, data, subscriptionId) {
@@ -88,7 +89,7 @@
 			/**
 			 * @see {powwow.hub.HubClient#disconnect}
 			 */
-			disconnect : function(client) {
+			disconnect : function() {
 			},
 
 			/*
@@ -97,13 +98,36 @@
 			 * ---------------------------------------------------------------------
 			 */
 
-			subscribe : function(topic, onData, scope, onComplete, subscriberData) {
+			publish : function(topic, message) {
+				var channelTopic = Hub.CHANNEL_DEFAULT + '!' + topic;
+				this._bus.send(channelTopic, message);
 			},
 
-			publish : function(topic, data) {
+			subscribe : function(topic, onMessage, configuration) {
+				return new Promise(function(resolve, reject) {
+					try {
+						var subscriptionId = new String(this._subscriptionIndex++);
+						var channelTopic = Hub.CHANNEL_DEFAULT + '!' + topic;
+						var handler = {
+							handle : onMessage
+						};
+						this._subscriptions[subscriptionId] = {
+							id : subscriptionId,
+							channelTopic : channelTopic,
+							handler : handler
+						};
+						this._bus.subscribe(channelTopic, handler);
+						resolve(subscriptionId);
+					}
+					catch (error) {
+						reject(error);
+					}
+				}.bind(this));
 			},
 
-			unsubscribe : function(subscriptionId, onComplete, scope) {
+			unsubscribe : function(subscription) {
+				this._bus.unsubscribe(subscription.channelTopic, subscription.handler);
+				delete this.subscriptions[subscription.id];
 			},
 
 			/*
@@ -133,10 +157,18 @@
 					try {
 						var templateImport = global.document.querySelector('#' + this._clientId);
 						var template = templateImport.import
-						var templateNode = template.getElementById('inline');
+						var templateNode = template.querySelector('template');
 						var shadowNode = this._parameters.InlineContainer.parent.createShadowRoot();
 						var templateNodeClone = global.document.importNode(templateNode.content, true);
 						shadowNode.appendChild(templateNodeClone);
+
+						// fix for browser not working with scripts in imports
+						//var script = global.document.createElement('script');
+						//script.src = '/powwow/bower_components/requirejs/require.js';
+						//global.document.getElementsByTagName('head')[0].appendChild(script);
+						//script = global.document.createElement('script');
+						//script.src = '/powwow/demo/main-inline.js';
+						//global.document.getElementsByTagName('head')[0].appendChild(script);
 					}
 					catch (error) {
 						reject(error);

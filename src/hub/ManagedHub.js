@@ -12,6 +12,8 @@ define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/ex
 
 		_containers : null,
 
+		_subscriptionIndex : 0,
+
 		_subscriptions : null,
 
 		_bus : null,
@@ -21,7 +23,7 @@ define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/ex
 			this._containers = {};
 			this._subscriptions = {};
 			this._bus = msgs.bus();
-			this._bus.topicExchangeChannel(this.CHANNEL_DEFAULT);
+			this._bus.topicExchangeChannel(Hub.CHANNEL_DEFAULT);
 		},
 		disconnect : function() {
 			var containerId;
@@ -62,23 +64,43 @@ define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/ex
 		 * ---------------------------------------------------------------------
 		 */
 
-		send : function(address, message, replyHandler) {
+		publish : function(topic, message) {
+			var channelTopic = Hub.CHANNEL_DEFAULT + '!' + topic;
+			this._bus.send(channelTopic, message);
 		},
 
-		publish : function(address, message) {
+		subscribe : function(topic, onMessage, configuration) {
+			return new Promise(function(resolve, reject) {
+				try {
+					var subscriptionId = new String(this._subscriptionIndex++);
+					var channelTopic = Hub.CHANNEL_DEFAULT + '!' + topic;
+					var handler = {
+						handle : onMessage
+					};
+					this._subscriptions[subscriptionId] = {
+						id : subscriptionId,
+						channelTopic : channelTopic,
+						handler : handler
+					};
+					this._bus.subscribe(channelTopic, handler);
+					resolve(subscriptionId);
+				}
+				catch (error) {
+					reject(error);
+				}
+			}.bind(this));
 		},
 
-		registerHandler : function(address, handler) {
+		unsubscribe : function(subscription) {
+			this._bus.unsubscribe(subscription.channelTopic, subscription.handler);
+			delete this.subscriptions[subscription.id];
 		},
 
-		unregisterHandler : function(subscription) {
-		},
-
-		/*
-		 * ---------------------------------------------------------------------
-		 * private
-		 * ---------------------------------------------------------------------
-		 */
+	/*
+	 * ---------------------------------------------------------------------
+	 * private
+	 * ---------------------------------------------------------------------
+	 */
 
 	});
 

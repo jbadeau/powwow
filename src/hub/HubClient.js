@@ -13,7 +13,7 @@
 
 		$name : 'HubClient',
 
-		connect : function() {
+		connect : function(client) {
 		},
 
 		disconnect : function() {
