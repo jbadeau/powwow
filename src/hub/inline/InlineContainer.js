@@ -42,8 +42,7 @@
 
 			init : function() {
 				this._hub.addContainer(this);
-				return this._importClientContent()
-				.then(this._appendClientContent.bind(this));
+				return this._importClientContent().then(this._appendClientContent.bind(this));
 			},
 
 			sendToClient : function(topic, data, subscriptionId) {
@@ -110,13 +109,14 @@
 						var handler = {
 							handle : onMessage
 						};
-						this._subscriptions[subscriptionId] = {
+						var subscription = {
 							id : subscriptionId,
 							channelTopic : channelTopic,
 							handler : handler
 						};
+						this._subscriptions[subscriptionId] = subscription;
 						this._bus.subscribe(channelTopic, handler);
-						resolve(subscriptionId);
+						resolve(subscription);
 					}
 					catch (error) {
 						reject(error);
@@ -162,12 +162,13 @@
 						shadowNode.appendChild(templateNodeClone);
 
 						// fix for browser not working with scripts in imports
-						//var script = global.document.createElement('script');
-						//script.src = '/powwow/bower_components/requirejs/require.js';
-						//global.document.getElementsByTagName('head')[0].appendChild(script);
-						//script = global.document.createElement('script');
-						//script.src = '/powwow/demo/main-inline.js';
-						//global.document.getElementsByTagName('head')[0].appendChild(script);
+						// var script = global.document.createElement('script');
+						// script.src =
+						// '/powwow/bower_components/requirejs/require.js';
+						// global.document.getElementsByTagName('head')[0].appendChild(script);
+						// script = global.document.createElement('script');
+						// script.src = '/powwow/demo/main-inline.js';
+						// global.document.getElementsByTagName('head')[0].appendChild(script);
 					}
 					catch (error) {
 						reject(error);

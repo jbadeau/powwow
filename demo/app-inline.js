@@ -1,5 +1,7 @@
 define([ 'powwow/hub/inline/InlineHubClient' ], function(InlineHubClient) {
 
+	var subscriptions = {};
+
 	var hubClient = new InlineHubClient({
 		HubClient : {
 			onSecurityAlert : function(source, alertType) {
@@ -20,12 +22,15 @@ define([ 'powwow/hub/inline/InlineHubClient' ], function(InlineHubClient) {
 	.then(function() {
 		return hubClient.subscribe('greeting.#', function(message) {
 			console.info(JSON.stringify(message));
-			//console.info('received topic ' + topic + ' with published data ' + publisherData + ' and subscriber data ' + subscriberData);
+			for(var subscriptionId in subscriptions) {
+				hubClient.unsubscribe(subscriptions[subscriptionId]);
+			}
 		});
 	})
 
 	.then(function(subscription) {
-		console.info('sucessfully subscribed to ' + subscription);
+		subscriptions[subscription.id] = subscription;
+		console.info('sucessfully subscribed to ' + JSON.stringify(subscription));
 	}, function(error) {
 		console.error(error)
 	});

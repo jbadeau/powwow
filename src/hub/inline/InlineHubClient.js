@@ -71,7 +71,7 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 		},
 
 		unsubscribe : function(subscription) {
-			return this._container.unsubscribe(unsubscribe);
+			this._container.unsubscribe(subscription);
 		},
 
 		isConnected : function() {
