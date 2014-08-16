@@ -43,7 +43,6 @@
 			init : function() {
 				this._hub.addContainer(this);
 				return this._importClientContent()
-
 				.then(this._appendClientContent.bind(this));
 			},
 
