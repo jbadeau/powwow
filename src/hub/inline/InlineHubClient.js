@@ -64,6 +64,7 @@ define([ 'dejavu/Class', '../HubClient' ], function(Class, HubClient) {
 		 */
 
 		publish : function(topic, message) {
+			this._container.publish(topic, message);
 		},
 
 		subscribe : function(topic, onMessage, configuration) {

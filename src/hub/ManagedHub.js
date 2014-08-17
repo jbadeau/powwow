@@ -94,7 +94,7 @@ define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/ex
 		unsubscribe : function(subscription) {
 			this._bus.unsubscribe(subscription.channelTopic, subscription.handler);
 			delete this.subscriptions[subscription.id];
-		},
+		}
 
 	/*
 	 * ---------------------------------------------------------------------

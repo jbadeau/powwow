@@ -10,7 +10,6 @@ define([ 'powwow/hub/inline/InlineHubClient' ], function(InlineHubClient) {
 		InlineHubClient : {
 			container : inlineContainer
 		}
-
 	});
 
 	hubClient.connect()

@@ -12,7 +12,24 @@
 	function Widget() {
 	}
 
-	Widget.prototype = {};
+	Widget.prototype = {
+
+		onLoad : function() {
+		},
+
+		onUnload : function() {
+		},
+
+		publish : function() {
+		},
+
+		subscribe : function() {
+		},
+
+		unsubscribe : function() {
+		}
+
+	};
 
 	return Widget;
 
