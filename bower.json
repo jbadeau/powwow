@@ -36,6 +36,7 @@
       "**/.md",
       "build",
       "bower_components",
+      "node_modules",
       "demo",
       "src",
       "test",
