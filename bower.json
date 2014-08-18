@@ -34,7 +34,8 @@
       "when":"3.4.3",
       "msgs":"0.4.0",
       "rest":"1.1.1",
-      "dejavu":"0.4.5"
+      "dejavu":"0.4.5",
+      "metawidget":"*"
    },
    "devDependencies":{
    },
