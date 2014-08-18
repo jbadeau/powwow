@@ -1,7 +1,13 @@
 {
    "name":"powwow",
    "version":"0.1.0",
-   "description":"A message bus implemented in JavaScript that enables widgets in a Web page to publish and listen for messages.",
+   "description":"A message bus implemented in JavaScript that enables widgets in a web page to publish and listen for messages.",
+   "authors":[
+      {
+         "name":"Jose Badeau",
+         "email":"jose.badeau@gmail.com"
+      }
+   ],
    "keywords":[
       "messagebus",
       "pubsub",
@@ -11,22 +17,7 @@
       "mashup",
       "dashboard"
    ],
-   "license":"MIT",
-   "repository":{
-      "type":"git",
-      "url":"https://github.com/jbadeau/powwow"
-   },
-   "bugs":{
-      "url":"https://github.com/jbadeau/powwow/issues"
-   },
    "main":"./powwow.ts",
-   "authors":[
-      {
-         "name":"Jose Badeau",
-         "email":"jose.badeau@gmail.com",
-         "homepage":"http://jose.badeau.com"
-      }
-   ],
    "dependencies":{
       "polymer":"0.3.3",
       "sprintf":"*",
@@ -38,16 +29,25 @@
       "metawidget":"*"
    },
    "devDependencies":{
+
    },
    "ignore":[
       "**/.*",
+      "**/.md",
       "build",
-      "doc",
-      "node_modules",
       "bower_components",
+      "demo",
+      "src",
       "test",
-      "*.md",
       "Gruntfile.js",
       "package.json"
-   ]
+   ],
+   "repository":{
+      "type":"git",
+      "url":"https://github.com/jbadeau/powwow"
+   },
+   "bugs":{
+      "url":"https://github.com/jbadeau/powwow/issues"
+   },
+   "license":"MIT"
 }
