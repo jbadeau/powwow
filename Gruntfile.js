@@ -49,6 +49,6 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', [ 'init', 'test', 'build' ]);
 	grunt.registerTask('init', [ 'bower-install-simple' ]);
 	grunt.registerTask('test', [ 'intern:dev' ]);
-	grunt.registerTask('build', [ 'jshint', 'requirejs:main' ]);
+	grunt.registerTask('build', [ 'jshint' ]);
 
 };
