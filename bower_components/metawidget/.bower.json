@@ -1,0 +1,35 @@
+{
+  "name": "metawidget",
+  "description": "User Interface widget that populates itself with UI components to match the properties of your domain objects",
+  "license": [
+    "EPL-1.0",
+    "LGPL-2.1"
+  ],
+  "main": [
+    "metawidget-inspectionresultprocessors.js",
+    "metawidget-inspectors.js",
+    "metawidget-layouts.js",
+    "metawidget-utils.js",
+    "metawidget-widgetbuilders.js",
+    "metawidget-widgetprocessors.js",
+    "metawidget.js"
+  ],
+  "homepage": "http://metawidget.org",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/metawidget/metawidget.git"
+  },
+  "ignore": [
+    "**/.*"
+  ],
+  "version": "3.9.0",
+  "_release": "3.9.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "3.9.0",
+    "commit": "c1f62c8c0a9ebb7b213f5a312fed5931500e38c7"
+  },
+  "_source": "git://github.com/metawidget/bower-metawidget.git",
+  "_target": "*",
+  "_originalSource": "metawidget"
+}
