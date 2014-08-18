@@ -18,19 +18,6 @@
       "dashboard"
    ],
    "main":"./powwow.ts",
-   "dependencies":{
-      "polymer":"0.3.3",
-      "sprintf":"*",
-      "requirejs":"2.1.14",
-      "when":"3.4.3",
-      "msgs":"0.4.0",
-      "rest":"1.1.1",
-      "dejavu":"0.4.5",
-      "metawidget":"*"
-   },
-   "devDependencies":{
-
-   },
    "ignore":[
       "**/.*",
       "**/.md",
@@ -50,5 +37,18 @@
    "bugs":{
       "url":"https://github.com/jbadeau/powwow/issues"
    },
-   "license":"MIT"
+   "license":"MIT",
+   "dependencies":{
+      "polymer":"0.3.3",
+      "sprintf":"*",
+      "requirejs":"2.1.14",
+      "when":"3.4.3",
+      "msgs":"0.4.0",
+      "rest":"1.1.1",
+      "dejavu":"0.4.5",
+      "metawidget":"*"
+   },
+   "devDependencies":{
+
+   }
 }

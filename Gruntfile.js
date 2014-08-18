@@ -25,30 +25,22 @@ module.exports = function(grunt) {
 			files : [ 'src/**/*.js', 'test/**/*.js' ]
 		},
 
-		intern : {
+		'karma' : {
 			dev : {
-				options : {
-					runType : 'runner',
-					config : 'test/intern',
-					reporters : [ 'console', 'lcov' ],
-					suites : [ 'unit/all' ]
-				}
+				configFile : 'test/karma.config.js'
 			},
 			prod : {
-				options : {
-					runType : 'runner',
-					config : 'test/intern',
-					reporters : [ 'console', 'lcov' ],
-					suites : [ 'unit/all' ]
-				}
+				configFile : 'test/karma.config.ci.js'
 			}
 		}
 
 	});
 
+	grunt.loadNpmTasks('intern')
+
 	grunt.registerTask('default', [ 'init', 'test', 'build' ]);
 	grunt.registerTask('init', [ 'bower-install-simple' ]);
-	grunt.registerTask('test', [ 'intern:dev' ]);
+	grunt.registerTask('test', [ 'karma' ]);
 	grunt.registerTask('build', [ 'jshint' ]);
 
 };
