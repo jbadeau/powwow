@@ -1,36 +1,28 @@
 {
-    "name": "powwow",
-    "version": "0.1.0",
-    "description": "A message bus implemented in JavaScript that enables widgets in a Web page to publish and listen for messages.",
-    "keywords": [
-        "messagebus",
-        "pubsub",
-        "hub",
-        "widget",
-        "gadget",
-        "mashup",
-        "dashboard"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/jbadeau/powwow"
-    },
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "http://www.opensource.org/licenses/mit-license.php"
-        }
-    ],
-    "maintainers": [
-        {
-            "name": "Jose Badeau",
-            "web": "http://josebadeau.com"
-        }
-    ],
-    "main": "./src/powwow",
-    "directories": {
-        "test": "test"
-    },
-    "devDependencies": {
-    }
+  "name": "seed",
+  "version": "0.0.1",
+  "description": "Description for seed",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-cli": "0.1.0",
+    "load-grunt-tasks": "0.5.0",
+    "grunt-remove" : "*",
+    "grunt-bower-install-simple" : "1.0.0",
+    "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-less": "0.8.2",
+    "grunt-contrib-concat" : "0.5.0",
+    "grunt-contrib-requirejs": "0.4.4",
+    "karma-script-launcher": "~0.1.0",
+    "karma-firefox-launcher": "~0.1.0",
+    "karma-chrome-launcher": "~0.1.0",
+    "karma-html2js-preprocessor": "~0.1.0",
+    "karma-jasmine": "~0.1.3",
+    "karma-requirejs": "~0.2.0",
+    "karma-coffee-preprocessor": "~0.1.0",
+    "karma-phantomjs-launcher": "~0.1.0",
+    "karma": "~0.10.4",
+    "grunt-karma": "~0.6.2",
+    "karma-coverage": "~0.1.0"
+  }
 }
