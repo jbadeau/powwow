@@ -1,4 +1,4 @@
-define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/exchange', 'msgs/channels/dispatchers/unicast', './Hub', './Errors', ], function(Class, msgs, exchangeDispatcher, unicastDispatcher, Hub, Errors) {
+define([ 'dejavu/Class', 'msgs/channels/exchange', 'msgs/channels/dispatchers/exchange', 'msgs/channels/dispatchers/unicast', './Hub', './Error', ], function(Class, msgs, exchangeDispatcher, unicastDispatcher, Hub, Error) {
 
 	'use strict';
 

@@ -1,6 +1,6 @@
 (function(global) {
 
-	define([ 'dejavu/Class', '../Container', '../Hub', '../HubClient', '../Errors' ], function(Class, Container, Hub, HubClient, Errors) {
+	define([ 'dejavu/Class', '../Container', '../Hub', '../HubClient', '../Error' ], function(Class, Container, Hub, HubClient, Error) {
 
 		'use strict';
 
