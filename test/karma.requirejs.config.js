@@ -12,17 +12,18 @@ requirejs.config({
   	  requireJsShowNoTimestampsError: true
   	},
 
-	baseUrl : 'http://localhost:9876/base/src',
+	baseUrl : 'http://localhost:9876/base',
 
 	paths : {
-		'sprintf' : '../bower_components/sprintf/src/sprintf',
+		'sprintf' : 'bower_components/sprintf/src/sprintf',
 	},
 
 	packages : [
-        { name: 'dejavu', location: '../bower_components/dejavu/dist/amd/strict', main: 'main' },
-        { name: 'mout', location: '../bower_components/mout/src', main: 'index' },
-        { name: 'when', location: '../bower_components/when', main: 'when' },
-        { name: 'msgs', location: '../bower_components/msgs', main: 'msgs' }
+	    { name: 'powwow', location: 'src', main: 'powwow' },
+        { name: 'dejavu', location: 'bower_components/dejavu/dist/amd/strict', main: 'main' },
+        { name: 'mout', location: 'bower_components/mout/src', main: 'index' },
+        { name: 'when', location: 'bower_components/when', main: 'when' },
+        { name: 'msgs', location: 'bower_components/msgs', main: 'msgs' }
     ],
 
     // ask Require.js to load these files (all our tests)

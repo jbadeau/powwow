@@ -39,7 +39,7 @@
    },
    "license":"MIT",
    "dependencies":{
-      "dejavu":"0.4.7",
+      "dejavu":"0.4.5",
       "msgs":"0.4.0",
       "polymer":"0.3.5",
       "requirejs":"2.1.14",

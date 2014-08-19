@@ -40,7 +40,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', [ 'init', 'test', 'build' ]);
 	grunt.registerTask('init', [ 'bower-install-simple' ]);
-	grunt.registerTask('test', [ 'karma' ]);
+	grunt.registerTask('test', [ 'karma:dev' ]);
 	grunt.registerTask('build', [ 'jshint' ]);
 
 };

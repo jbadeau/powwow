@@ -58,10 +58,10 @@
 		/** HubClient interface methods */
 		/** ****************************************************************** */
 
-		connect : function(onComplete, scope) {
+		connect : function(client) {
 		},
 
-		disconnect : function(onComplete, scope) {
+		disconnect : function() {
 		},
 
 		getPartnerOrigin : function() {

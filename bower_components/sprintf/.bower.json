@@ -24,6 +24,6 @@
     "commit": "ac4d0adfa208711a0a58fb7ecbd526fcb274a11b"
   },
   "_source": "git://github.com/alexei/sprintf.js.git",
-  "_target": "*",
+  "_target": "1.0.0",
   "_originalSource": "sprintf"
 }
