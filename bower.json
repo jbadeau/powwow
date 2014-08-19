@@ -39,16 +39,13 @@
    },
    "license":"MIT",
    "dependencies":{
-      "polymer":"0.3.3",
-      "sprintf":"*",
-      "requirejs":"2.1.14",
-      "when":"3.4.3",
+      "dejavu":"0.4.7",
       "msgs":"0.4.0",
-      "rest":"1.1.1",
-      "dejavu":"0.4.5",
-      "metawidget":"*"
+      "polymer":"0.3.5",
+      "requirejs":"2.1.14",
+      "sprintf":"1.0.0",
+      "when":"3.4.4"
    },
    "devDependencies":{
-
    }
 }
